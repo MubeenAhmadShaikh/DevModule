@@ -1,7 +1,8 @@
+import sqlalchemy as sa
 from sqlalchemy import Column, Integer, String, ForeignKey
 from .database import Base
 from datetime import datetime
-
+from fastapi.utils import generate_unique_id
 timeFormat =  datetime.now().strftime('%Y-%m-%d %H:%M')
 
 class Project(Base):
@@ -19,4 +20,15 @@ class Project(Base):
     # reveiw
     # tags
 
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True, index=True)
+    created = Column(String, default=timeFormat)
+    user_name = Column(String(200), nullable=False)
+    first_name = Column(String(200), nullable=False)
+    last_name = Column(String(200), nullable=False)
+    email = Column(String(200), nullable=False)
+    password = Column(String(200), nullable=False)
 

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from core.database import Base, engine
 from core import models
-from router import project
+from router import project, user
 from pathlib import Path
 
 app = FastAPI()
@@ -9,3 +9,4 @@ app = FastAPI()
 models.Base.metadata.create_all(engine)
 
 app.include_router(project.router)
+app.include_router(user.router)

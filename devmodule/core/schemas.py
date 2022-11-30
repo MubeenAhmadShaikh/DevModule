@@ -10,3 +10,18 @@ class ProjectBase(BaseModel):
 
     class Config:
         orm_mode = True
+
+class UserBase(BaseModel):
+    user_name:str
+    first_name:str
+    last_name:str
+    email:str
+    password:str
+
+class showUser(BaseModel):
+    user_name:str
+    first_name:str
+    last_name:str
+    email:str
+    class Config():
+        orm_mode = True
