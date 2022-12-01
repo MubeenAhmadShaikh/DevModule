@@ -1,17 +1,18 @@
 from fastapi import Depends, HTTPException, status
 from core import schemas, database, models
 from sqlalchemy.orm import Session
+from .hashing import Hash
 
 
 
 # create_user
 def create_user(request:schemas.UserBase, db:Session = Depends(database.get_db)):
+    hashed_password = Hash.get_password_hash(request.password)
     create_user = models.User(
-        user_name = request.user_name,
         first_name = request.first_name,
         last_name = request.last_name,
         email = request.email,
-        password = request.password
+        password = hashed_password
     )
     db.add(create_user)
     db.commit()
@@ -47,3 +48,9 @@ def view_single_user(id:int,db:Session = Depends(database.get_db)):
 def view_all_users(db:Session = Depends(database.get_db)):
     all_users = db.query(models.User).all()
     return all_users
+
+
+
+# update-profile
+def update_profile():
+    return 'updating profile'

@@ -23,7 +23,7 @@ later update to UUID/GUID like 'ujdhguh132h438687y32b3rh3yt7648793b'
 
 
 # create_user
-@router.post('/create-user')
+@router.post('/create-user', response_model=schemas.showUser)
 def create_user(request:schemas.UserBase,db:Session = Depends(database.get_db)):
     return user.create_user(request,db)
 
@@ -46,4 +46,10 @@ def view_single_user(id:int,db:Session = Depends(database.get_db)):
 @router.get('/all-users', response_model=List[schemas.showUser])
 def view_all_users(db:Session = Depends(database.get_db)):
     return user.view_all_users(db)
+
+
+# update profile
+@router.get('/update-profile')
+def update_profile():
+    return user.update_profile()
 

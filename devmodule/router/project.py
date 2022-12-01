@@ -3,6 +3,7 @@ from fastapi import FastAPI, Depends, Request, status, APIRouter
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from repository import project
+from repository.oauth2 import get_current_user
 from core import schemas, database, models
 
 
@@ -14,7 +15,7 @@ router = APIRouter(
 
 # Route for viewing all project
 @router.get('/')
-def view_all_projects( db:Session = Depends(database.get_db)):
+def view_all_projects( db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
     return project.view_all_projects(db)
 
 # Route for viewing single project

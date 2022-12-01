@@ -1,0 +1,58 @@
+from fastapi import Depends, HTTPException, status, APIRouter
+from sqlalchemy.orm import Session
+from core import models, database, schemas
+
+
+#TODO
+# 1. write the lambda functions for storing the major and moinor skills 
+# in both SINGLE_SKILL and ALL_SKILL function
+
+
+# create a skill
+def create_skill(request:schemas.skillBase, db:Session = Depends(database.get_db)):
+    create_skill = models.Skill(
+        name=request.name,
+        description=request.description
+    )
+    db.add(create_skill)
+    db.commit()
+    db.refresh(create_skill)
+    return create_skill
+
+
+# update a skill
+def update_skill(id:int, request:schemas.skillBase,db:Session = Depends(database.get_db)):
+    update_skill = db.query(models.Skill).filter(models.Skill.id == id)
+    if not update_skill.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No such skill exist')
+    update_skill.update(request.dict())
+    db.commit()
+    return 'Updated skill'
+
+# delete a skill
+def delete_skill(id:int, db:Session = Depends(database.get_db)):
+    delete_skill = db.query(models.Skill).filter(models.Skill.id == id)
+    if not delete_skill.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No such skill exist')
+    delete_skill.delete()
+    db.commit()
+    return 'Deleted skill'
+
+
+# view single skill
+def view_single_skill(id:int, db:Session = Depends(database.get_db)):
+    single_skill = db.query(models.Skill).filter(models.Skill.id == id).first()
+    if not single_skill:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No such skill exist')
+    return single_skill
+# view all skill
+def view_all_skills(db:Session = Depends(database.get_db)):
+    all_skills = db.query(models.Skill).all()
+    
+    # for skill in all_skills:
+    #     if not skill.description:
+    #         print(skill.name)
+    
+    if not all_skills:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No skills present')
+    return all_skills
