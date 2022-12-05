@@ -22,13 +22,19 @@ def get_current_user(tokendata: str = Depends(oauth2_scheme), db:Session = Depen
 #     return current_user
 
 def authenticate_user(db:Session = Depends(database.get_db), request:OAuth2PasswordRequestForm = Depends()):
-    user = db.query(models.User).filter(models.User.email == request.username ).first()
-    if not user:
+    user = db.query(models.User).filter(models.User.email == request.username )
+    if not user.first():
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",)
     
-    if not Hash.verify_password(request.password,user.password):
+    if not Hash.verify_password(request.password,user.first().password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",)
-    return user
+    activate_user={
+        'is_active' : True
+    }
+    if not user.first().is_active:
+        user.update(activate_user)
+        db.commit()
+    return user.first()

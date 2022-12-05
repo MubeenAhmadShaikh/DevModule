@@ -16,6 +16,7 @@ class UserBase(BaseModel):
     last_name:str
     email:str
     password:str
+    is_active:bool
 
 class showUser(BaseModel):
     first_name:str
@@ -38,3 +39,17 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     emai: str | None = None
+
+
+class ProfileBase(BaseModel):
+    # user_id
+    username:str
+    location:str
+    short_intro:str
+    bio:str
+    # profile_image 
+    social_github:str
+    social_twitter:str
+    social_linkedin:str
+    social_youtube:str
+    social_website:str
