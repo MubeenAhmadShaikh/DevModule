@@ -1,10 +1,11 @@
-from fastapi import Depends, HTTPException, status, APIRouter
+from fastapi import Depends, HTTPException, status, APIRouter, Request
 from sqlalchemy.orm import Session
 from core import models, database, schemas
 from repository.oauth2 import get_current_user
 from repository import user
 from typing import List
-
+from fastapi.responses import HTMLResponse
+from .templatedir import templates
 
 
 router = APIRouter(
@@ -22,11 +23,11 @@ later update so that authenticated user only should be able to update their user
 later update to UUID/GUID like 'ujdhguh132h438687y32b3rh3yt7648793b'
 '''
 
-
+# DEPRECATED - Implemented in registration(authentication)
 # create_user
-@router.post('/create-user', response_model=schemas.showUser)
-def create_user(request:schemas.UserBase,db:Session = Depends(database.get_db)):
-    return user.create_user(request,db)
+# @router.post('/create-user', response_model=schemas.showUser)
+# def create_user(request:schemas.UserBase,db:Session = Depends(database.get_db)):
+#     return user.create_user(request,db)
 
 #route for update of user
 @router.put('/update-user')
@@ -44,9 +45,13 @@ def view_single_user(id:int,db:Session = Depends(database.get_db)):
     return user.view_single_user(id,db)
 
 # view_all_users
-@router.get('/developers', response_model=List[schemas.showUser])
-def view_all_users(db:Session = Depends(database.get_db)):
-    return user.view_all_users(db)
+@router.get('/developers', response_model=List[schemas.showUser], response_class=HTMLResponse)
+def view_all_users(request:Request,db:Session = Depends(database.get_db)):
+    developers = user.view_all_users(db)
+    context = {"request":request,"developers":developers}
+    for dev in developers:
+        print(dev.first_name)
+    return templates.TemplateResponse('index.html',context)
 
 
 

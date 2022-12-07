@@ -12,26 +12,28 @@ from repository.oauth2 import get_current_user
 
 
 #UPDATE - 
-# 1. create_user will undergo into the registrations process
+# 1. create_user will undergo into the registrations process - ACHIEVED
 # 2. Need to add the create profile invoke method once user registers 
-def create_user(request:schemas.UserBase, db:Session = Depends(database.get_db)):
-    user = db.query(models.User).filter(models.User.email == request.email).first()
-    if user and (not user.is_active or user.is_active):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="You already have an account Please login")
-    else:
-        hashed_password = Hash.get_password_hash(request.password)
-        create_user = models.User(
-            first_name = request.first_name,
-            last_name = request.last_name,
-            email = request.email,
-            password = hashed_password,
-            is_active=request.is_active
-        )
-        db.add(create_user)
-        db.commit()
-        db.refresh(create_user)
+
+#DEPRECATED - Added this in registration (authentication)
+# def create_user(request:schemas.UserBase, db:Session = Depends(database.get_db)):
+#     user = db.query(models.User).filter(models.User.email == request.email).first()
+#     if user and (not user.is_active or user.is_active):
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="You already have an account Please login")
+#     else:
+#         hashed_password = Hash.get_password_hash(request.password)
+#         create_user = models.User(
+#             first_name = request.first_name,
+#             last_name = request.last_name,
+#             email = request.email,
+#             password = hashed_password,
+#             is_active=request.is_active
+#         )
+#         db.add(create_user)
+#         db.commit()
+#         db.refresh(create_user)
     
-    return create_user
+#     return create_user
 
     
 #UPDATE Need to combine user and profile update

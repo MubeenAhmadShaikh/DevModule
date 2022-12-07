@@ -3,7 +3,7 @@ from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from . import token
 from .hashing import Hash
-from core import models, database
+from core import models, database, schemas
 from sqlalchemy.orm import Session
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
@@ -21,13 +21,13 @@ def get_current_user(tokendata: str = Depends(oauth2_scheme), db:Session = Depen
 #         raise HTTPException(status_code=400, detail="Inactive user")
 #     return current_user
 
-def authenticate_user(db:Session = Depends(database.get_db), request:OAuth2PasswordRequestForm = Depends()):
-    user = db.query(models.User).filter(models.User.email == request.username )
+def authenticate_user(username,password, db:Session = Depends(database.get_db)):
+    user = db.query(models.User).filter(models.User.email == username )
     if not user.first():
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",)
     
-    if not Hash.verify_password(request.password,user.first().password):
+    if not Hash.verify_password(password, user.first().password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",)
@@ -38,3 +38,21 @@ def authenticate_user(db:Session = Depends(database.get_db), request:OAuth2Passw
         user.update(activate_user)
         db.commit()
     return user.first()
+# OG
+# def authenticate_user(db:Session = Depends(database.get_db), request:OAuth2PasswordRequestForm = Depends()):
+#     user = db.query(models.User).filter(models.User.email == request.username )
+#     if not user.first():
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Incorrect username or password",)
+    
+#     if not Hash.verify_password(request.password,user.first().password):
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Incorrect username or password",)
+#     activate_user={
+#         'is_active' : True
+#     }
+#     if not user.first().is_active:
+#         user.update(activate_user)
+#         db.commit()
+#     return user.first()

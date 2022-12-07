@@ -32,7 +32,7 @@ def create_profile(request:schemas.ProfileBase, db:Session =Depends(database.get
         social_linkedin=request.social_linkedin,
         social_youtube=request.social_youtube,
         social_website=request.social_website,
-        owner_id=current_user.id
+        user_id=current_user.id
     )
     db.add(profile)
     db.commit()

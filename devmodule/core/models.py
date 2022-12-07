@@ -22,7 +22,8 @@ class User(Base):
     # reviews
     # skills
     # blogs
-    profile = relationship("Profile", back_populates="owner")
+    profile = relationship("Profile", back_populates="user")
+    # project = relationship("Project", back_populates="owner")
 
 
 
@@ -45,17 +46,11 @@ class Profile(Base):
     social_youtube = Column(String(200), nullable=True)
     social_website = Column(String(200), nullable=True)
     # owner_id = Column(Integer, ForeignKey("users.id"))
-    owner_id = Column(Integer,ForeignKey("users.id"))
-    owner = relationship("User", back_populates="profile")
+    user_id = Column(Integer,ForeignKey("users.id"))
+    user = relationship("User", back_populates="profile")
     # owner_id = Column(Integer, ForeignKey("users.id"),nullable=True)
-
+    project = relationship("Project", back_populates="owner")
     
-    # relationship
-    # owner = relationship(
-    #     "User", backref=backref("profiles", cascade="all, delete-orphan")
-    # )
-    # user = relationship('User',back_populates='profile')
-    # skill = relationship('Skill', back_populates='profile')
 
 class Project(Base):
     __tablename__ = 'projects'
@@ -68,6 +63,10 @@ class Project(Base):
     source_link = Column(String(2000), nullable=True)
     vote_total = Column(Integer,default=0)
     vote_ratio = Column(Integer,default=0)
+    # ForeignKeys
+    owner_id = Column(Integer,ForeignKey("profiles.id"))
+    owner = relationship("Profile", back_populates="project")
+    # Relationships
     # owner
     # reveiw
     # tags

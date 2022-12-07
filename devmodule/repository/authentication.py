@@ -9,10 +9,19 @@ from .oauth2 import authenticate_user
 
 ACCESS_TOKEN_EXPIRE_MINUTES=10
 
-def login(request:OAuth2PasswordRequestForm = Depends(), db:Session = Depends(database.get_db)):
-    user = authenticate_user(db,request)
+def login(username,password, db:Session = Depends(database.get_db)):
+    user = authenticate_user(username,password,db)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+# OG
+# def login(request:OAuth2PasswordRequestForm = Depends(), db:Session = Depends(database.get_db)):
+#     user = authenticate_user(db,request)
+#     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+#     access_token = create_access_token(
+#         data={"sub": user.email}, expires_delta=access_token_expires
+#     )
+#     return {"access_token": access_token, "token_type": "bearer"}

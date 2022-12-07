@@ -2,7 +2,7 @@
 from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException, status, Request
 from core import schemas, database, models
-
+from repository.oauth2 import get_current_user
 
 # View all the projects
 def view_all_projects(db:Session = Depends(database.get_db)):
@@ -17,14 +17,15 @@ def view_single_project(id:int, db:Session = Depends(database.get_db)):
     return single_project
 
 # Create a project
-def create_project(request:schemas.ProjectBase, db:Session= Depends(database.get_db)):
+def create_project(request:schemas.ProjectBase, db:Session= Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
     create_project = models.Project(
         title=request.title,
         description=request.description,
         demo_link=request.demo_link,
         source_link=request.source_link,
         vote_total=request.vote_total,
-        vote_ratio=request.vote_ratio
+        vote_ratio=request.vote_ratio,
+        owner_id=current_user.id
         )
     db.add(create_project)
     db.commit()
@@ -33,7 +34,7 @@ def create_project(request:schemas.ProjectBase, db:Session= Depends(database.get
     return create_project
 
 # Update a project
-def update_project(id:int, request:schemas.ProjectBase, db:Session = Depends(database.get_db)):
+def update_project(id:int, request:schemas.ProjectBase, db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
     single_project = db.query(models.Project).filter(models.Project.id == id)
     if not single_project.first():
               raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail='No such project exist')

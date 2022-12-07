@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="{{ url_for('static',path='images/logo.svg') }}" type="image/x-icon" />
+  <!-- Icon - IconMonster -->
+  <link rel="stylesheet" href="https://cdn.iconmonstr.com/1.3.0/css/iconmonstr-iconic-font.min.css" />
+  <!-- Mumble UI -->
+  <link rel="stylesheet" href="{{ url_for('static', path='uikit/styles/uikit.css')}}" />
+  <!-- Dev Search UI -->
+  <link rel="stylesheet" href="{{ url_for('static', path='styles/app.css')}}" />
+
+  <title>DevSearch - Connect with Developers!</title>
+</head>
+<body>
+    {% include 'root/nav-bar.html'%}
+    {% block content %}
+    
+    {% endblock content %}
+<script src="{{ url_for('static', path='uikit/app.js') }}"></script>
+<script src="{{ url_for('static', path='js/main.js') }}"></script>
+</body>
+</html>
