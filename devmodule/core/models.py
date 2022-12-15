@@ -11,8 +11,6 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     created = Column(String, default=timeFormat)
-    first_name = Column(String(200), nullable=False)
-    last_name = Column(String(200), nullable=False)
     email = Column(String, nullable=False)
     password = Column(String, nullable=False)
     is_active = Column(Boolean, nullable=False)
@@ -32,7 +30,8 @@ class Profile(Base):
 
     id  = Column(Integer, primary_key=True,index=True)
     created = Column(String,default=timeFormat)
-    name = Column(String(200))
+    first_name = Column(String(200), nullable=False)
+    last_name = Column(String(200), nullable=False)
     # user_id = Column(Integer,ForeignKey('users.id'))
     username = Column(String(200), nullable=True)
     location = Column(String(200), nullable=True)
@@ -50,6 +49,7 @@ class Profile(Base):
     user = relationship("User", back_populates="profile")
     # owner_id = Column(Integer, ForeignKey("users.id"),nullable=True)
     project = relationship("Project", back_populates="owner")
+    skill = relationship("Skill", back_populates="owner")
     
 
 class Project(Base):
@@ -79,5 +79,7 @@ class Skill(Base):
     created = Column(String, default=timeFormat) 
     name = Column(String(200), nullable=False)
     description = Column(String(1000), nullable=True)
+    owner_id = Column(Integer,ForeignKey("profiles.id"))
+    owner = relationship("Profile", back_populates="skill")
     # owner
 

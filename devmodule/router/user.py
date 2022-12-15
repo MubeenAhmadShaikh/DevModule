@@ -30,28 +30,28 @@ later update to UUID/GUID like 'ujdhguh132h438687y32b3rh3yt7648793b'
 #     return user.create_user(request,db)
 
 #route for update of user
-@router.put('/update-user')
-def update_user(request:schemas.showUser, db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
-    return user.update_user(request, db, current_user)
+# @router.put('/update-user')
+# def update_user(request:schemas.showUser, db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+#     return user.update_user(request, db, current_user)
 
-#route for deactivation of user account
-@router.delete('/deactivate')
-def delete_user(db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
-    return user.delete_user(db, current_user)
+# #route for deactivation of user account
+# @router.delete('/deactivate')
+# def delete_user(db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+#     return user.delete_user(db, current_user)
 
-# view_single_user
-@router.get('/single-user/{id}', response_model=schemas.showUser)
-def view_single_user(id:int,db:Session = Depends(database.get_db)):
-    return user.view_single_user(id,db)
+# # view_single_user
+# @router.get('/single-user/{id}', response_model=schemas.showUser)
+# def view_single_user(id:int,db:Session = Depends(database.get_db)):
+#     return user.view_single_user(id,db)
 
-# view_all_users
-@router.get('/developers', response_model=List[schemas.showUser], response_class=HTMLResponse)
-def view_all_users(request:Request,db:Session = Depends(database.get_db)):
-    developers = user.view_all_users(db)
-    context = {"request":request,"developers":developers}
-    for dev in developers:
-        print(dev.first_name)
-    return templates.TemplateResponse('index.html',context)
+# # view_all_users
+# @router.get('/developers', response_model=List[schemas.showUser], response_class=HTMLResponse)
+# def view_all_users(request:Request,db:Session = Depends(database.get_db)):
+#     developers = user.view_all_users(db)
+#     context = {"request":request,"developers":developers}
+#     for dev in developers:
+#         print(dev.first_name)
+#     return templates.TemplateResponse('index.html',context)
 
 
 

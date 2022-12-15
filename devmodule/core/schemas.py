@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class ProjectBase(BaseModel):
     title:str
@@ -14,9 +15,9 @@ class ProjectBase(BaseModel):
 class UserBase(BaseModel):
     first_name:str
     last_name:str
-    email:str
+    username:str
     password:str
-    is_active:bool
+    is_active:Optional[bool]
 
 class showUser(BaseModel):
     first_name:str
@@ -38,12 +39,13 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    emai: str | None = None
+    email: Optional[str] = None
 
 
 class ProfileBase(BaseModel):
     # user_id
-    username:str
+    first_name:str
+    last_name:str
     location:str
     short_intro:str
     bio:str

@@ -1,13 +1,18 @@
 from jose import JWTError, jwt
-from fastapi import HTTPException, Depends, status
+from fastapi import HTTPException, Depends, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from . import token
 from .hashing import Hash
 from core import models, database, schemas
 from sqlalchemy.orm import Session
+from router.templatedir import templates
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
+# def get_current_user(request:Request, db:Session = Depends(database.get_db)):
+#     return token.verify_token(request,db)
+
+# OG
 def get_current_user(tokendata: str = Depends(oauth2_scheme), db:Session = Depends(database.get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -21,16 +26,16 @@ def get_current_user(tokendata: str = Depends(oauth2_scheme), db:Session = Depen
 #         raise HTTPException(status_code=400, detail="Inactive user")
 #     return current_user
 
-def authenticate_user(username,password, db:Session = Depends(database.get_db)):
-    user = db.query(models.User).filter(models.User.email == username )
-    if not user.first():
+def authenticate_user(request, db:Session = Depends(database.get_db)):
+    print(request.username)
+    user = db.query(models.User).filter(models.User.email == request.username )
+    errors=[]
+    if (not user.first()) or (not Hash.verify_password(request.password, user.first().password)) :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",)
-    
-    if not Hash.verify_password(password, user.first().password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",)
+            detail="Incorrect username",)
+        # errors.append('Incorrect Username or Password')
+        # context = {"request":request,"errors":errors}
+        # return templates.TemplateResponse('login.html',context)
     activate_user={
         'is_active' : True
     }

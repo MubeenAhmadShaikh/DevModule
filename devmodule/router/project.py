@@ -31,20 +31,38 @@ def update_project(id:int,request:schemas.ProjectBase, db:Session = Depends(data
 @router.delete('/delete-project')
 def delete_project(id:int,db:Session = Depends(database.get_db)):
     return project.delete_project(id,db)
-    
-# Route for viewing all project
-@router.get('/',status_code=status.HTTP_200_OK, response_class=HTMLResponse)
-def view_all_projects(request:Request, db:Session = Depends(database.get_db),current_user: models.User = Depends(get_current_user)):
-    projects =  project.view_all_projects(db)
-    context = {"request":request,"projects":projects}
-    return templates.TemplateResponse("projects.html",context)
 
-# Route for viewing single project
-@router.get('/single-project/{id}',status_code=status.HTTP_200_OK, response_class=HTMLResponse)
-def view_single_project(id:int,request:Request,db:Session = Depends(database.get_db)):
-    projectObj = project.view_single_project(id,db)
-    context = {"request":request,"project":projectObj}
-    return templates.TemplateResponse("single-project.html",context)
+
+
+
+# Route for viewing all project for authorized user
+@router.get('/',status_code=status.HTTP_200_OK)
+def view_all_projects( db:Session = Depends(database.get_db),current_user: schemas.UserBase = Depends(get_current_user)):    
+    projects = project.view_all_projects(db)
+    user = current_user
+    return {"projects":projects,"user":user}
+
+# Route for all projects for unauthorized user
+@router.get('/projects-explore',status_code=status.HTTP_200_OK)
+def view_all_projects( db:Session = Depends(database.get_db)):    
+    projects= project.view_all_projects(db)
+    return {"projects":projects}
+
+# Route for viewing single project for authorized user
+@router.get('/project/{id}',status_code=status.HTTP_200_OK)
+def view_single_project(id:int,db:Session = Depends(database.get_db),current_user: schemas.UserBase = Depends(get_current_user)):
+    projectObject = project.view_single_project(id,db)
+    user = current_user
+    owner = projectObject.owner
+    return {"project":projectObject,"user":user}
+
+
+# Route for single projects for unauthorized user
+@router.get('/project-explore/{id}',status_code=status.HTTP_200_OK)
+def view_single_project(id:int,db:Session = Depends(database.get_db)): 
+    projectObject = project.view_single_project(id,db)
+    owner = projectObject.owner
+    return {"project":projectObject}
 
 
 

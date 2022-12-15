@@ -9,10 +9,11 @@ from core import models, database, schemas
 
 
 # create a skill
-def create_skill(request:schemas.skillBase, db:Session = Depends(database.get_db)):
+def create_skill(request, db,current_user):
     create_skill = models.Skill(
         name=request.name,
-        description=request.description
+        description=request.description,
+        owner_id=current_user.id
     )
     db.add(create_skill)
     db.commit()

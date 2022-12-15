@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException, status, APIRouter
 from sqlalchemy.orm import Session
 from core import models, database, schemas
 from repository import skill
+from repository.oauth2 import get_current_user
 
 router = APIRouter(
     prefix='/skills',
@@ -11,8 +12,8 @@ router = APIRouter(
 
 # route for creating a skill
 @router.post('/create-skill', status_code=status.HTTP_201_CREATED)
-def create_skill(request:schemas.skillBase, db:Session = Depends(database.get_db)):
-    return skill.create_skill(request, db)
+def create_skill(request:schemas.skillBase, db:Session = Depends(database.get_db),current_user: schemas.UserBase = Depends(get_current_user)):
+    return skill.create_skill(request, db,current_user)
 
 # route for updating a skill
 @router.put('/update-skill/{id}', status_code=status.HTTP_200_OK)

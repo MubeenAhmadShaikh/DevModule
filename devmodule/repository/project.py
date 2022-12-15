@@ -7,6 +7,8 @@ from repository.oauth2 import get_current_user
 # View all the projects
 def view_all_projects(db:Session = Depends(database.get_db)):
     projects = db.query(models.Project).all()
+    profiles= [project.owner for project in projects]
+    response = {"projects":projects,"profiles":profiles}
     return projects
 
 # View single project
