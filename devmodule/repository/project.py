@@ -1,15 +1,26 @@
 
 from sqlalchemy.orm import Session
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends, HTTPException, status, File, UploadFile
 from core import schemas, database, models
 from repository.oauth2 import get_current_user
+from repository import project
+import shutil
+from pathlib import Path
 
 # View all the projects
 def view_all_projects(db:Session = Depends(database.get_db)):
     projects = db.query(models.Project).all()
     profiles= [project.owner for project in projects]
-    response = {"projects":projects,"profiles":profiles}
-    return projects
+    active_profiles = []
+    for profile in profiles:
+        if profile.user.is_active:
+            active_profiles.append(profile)
+    active_projects=[]
+    for project in projects:
+        if (project.owner.user.is_active):
+            active_projects.append(project)
+    response = {"projects":active_projects,"profiles":active_profiles}
+    return active_projects, active_profiles
 
 # View single project
 def view_single_project(id:int, db:Session = Depends(database.get_db)):
@@ -52,3 +63,24 @@ def delete_project(id:int,db:Session = Depends(database.get_db)):
     single_project.delete()
     db.commit()
     return 'Project Deleted'
+
+
+
+
+def save_upload_file(upload_file: UploadFile, destination: Path) -> str:
+    try:
+        with destination.open("wb") as buffer:
+            shutil.copyfileobj(upload_file.file, buffer)
+            file_name = buffer.name
+            print(type(file_name))
+    finally:
+        upload_file.file.close()
+    return file_name
+
+def get_project_review(id,db):
+    projectObj = project.view_single_project(id,db)
+    reviews = projectObj.review
+    owners = []
+    for review in reviews:
+        owners.append(review.owner)
+    return reviews

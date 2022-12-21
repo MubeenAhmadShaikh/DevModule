@@ -5,7 +5,6 @@ from . import token
 from .hashing import Hash
 from core import models, database, schemas
 from sqlalchemy.orm import Session
-from router.templatedir import templates
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
@@ -27,7 +26,7 @@ def get_current_user(tokendata: str = Depends(oauth2_scheme), db:Session = Depen
 #     return current_user
 
 def authenticate_user(request, db:Session = Depends(database.get_db)):
-    print(request.username)
+    
     user = db.query(models.User).filter(models.User.email == request.username )
     errors=[]
     if (not user.first()) or (not Hash.verify_password(request.password, user.first().password)) :

@@ -1,8 +1,9 @@
 import sqlalchemy as sa
-from sqlalchemy import Column, Integer, String, ForeignKey, DATE, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, DATE, Boolean, Enum
 from .database import Base
 from sqlalchemy.orm import relationship, backref
 from datetime import datetime
+import enum
 
 timeFormat =  datetime.now().strftime('%Y-%m-%d %H:%M')
 
@@ -50,9 +51,12 @@ class Profile(Base):
     # owner_id = Column(Integer, ForeignKey("users.id"),nullable=True)
     project = relationship("Project", back_populates="owner")
     skill = relationship("Skill", back_populates="owner")
+    review = relationship("Review", back_populates="owner")
     
 
+
 class Project(Base):
+    
     __tablename__ = 'projects'
     id = Column(Integer, primary_key=True, index=True)
     created = Column(String,default=timeFormat)
@@ -66,10 +70,31 @@ class Project(Base):
     # ForeignKeys
     owner_id = Column(Integer,ForeignKey("profiles.id"))
     owner = relationship("Profile", back_populates="project")
+    review = relationship("Review", back_populates="project")
     # Relationships
     # owner
-    # reveiw
     # tags
+class VoteType(enum.Enum):
+    up= 'Up Vote'
+    down = 'Down Vote'
+    
+class Review(Base):
+    vote_type = {
+        'up':'Up Vote',
+        'down':'Down Vote'
+    }
+    __tablename__ = 'reviews'
+    id = Column(Integer, primary_key=True, index=True)
+    created = Column(String,default=timeFormat)
+    comment = Column(String(200),nullable=False)
+    vote_value = Column(Enum(VoteType),nullable=False)
+    # Relationships
+    owner_id = Column(Integer,ForeignKey("profiles.id"))
+    owner = relationship("Profile", back_populates="review")
+
+    project_id = Column(Integer,ForeignKey("projects.id"))
+    project = relationship("Project", back_populates="review")
+   
 
 
 class Skill(Base):

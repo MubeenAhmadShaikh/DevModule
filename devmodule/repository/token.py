@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from core import schemas, models, database
 from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException, status, Request
-from router.templatedir import templates
+
 
 SECRET_KEY = "481636116ef77f702cbb42b9fefe18bf1eb44e78192d6c713a69b7fbe6ea639f"
 ALGORITHM = "HS256" 
@@ -39,7 +39,7 @@ def verify_token(tokendata,credentials_exception, db):
     try:
         payload = jwt.decode(tokendata, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
-        print(username)
+        
         if username is None:
             raise credentials_exception
             # return {"detail":'email does not exist'}

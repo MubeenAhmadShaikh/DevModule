@@ -7,10 +7,10 @@ from . import profile
 from fastapi.security import OAuth2PasswordRequestForm
 from .oauth2 import authenticate_user
 from .hashing import Hash
-from router.templatedir import templates 
 from fastapi.responses import RedirectResponse
+import re
 
-ACCESS_TOKEN_EXPIRE_MINUTES=10
+ACCESS_TOKEN_EXPIRE_MINUTES=60  
 
 def login(request, db):
     user = db.query(models.User).filter(models.User.email == request.username ) 
@@ -41,12 +41,20 @@ def login(request, db):
 #         data={"sub": user.email}, expires_delta=access_token_expires
 #     )
 #     return {"access_token": access_token, "token_type": "bearer"}
-
+def password_is_valid(password):
+    if re.fullmatch(r'[A-Za-z0-9@#$]{8,15}', password):
+        return True
+    else:
+        return False
 
 def register(request,db):
     user = db.query(models.User).filter(models.User.email == request.username).first()
+    password_validation = password_is_valid(request.password)
     if user and (not user.is_active or user.is_active):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='You already have an account! Please Login')
+    elif not password_validation:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, 
+        detail='Password must be atleast 8 and maximum 15 characters and can only containe alphabets(Upper or lower case) and special characters(#,$,@)')
     else:
         try:
             hashed_password = Hash.get_password_hash(request.password)
@@ -62,4 +70,5 @@ def register(request,db):
                return True
         except:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Something went wrong')
-    
+
+

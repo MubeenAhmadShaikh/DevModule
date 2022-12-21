@@ -55,3 +55,7 @@ class ProfileBase(BaseModel):
     social_linkedin:str
     social_youtube:str
     social_website:str
+
+class ReviewBase(BaseModel):
+    comment :str
+    vote_value: str

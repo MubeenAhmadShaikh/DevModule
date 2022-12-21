@@ -26,7 +26,7 @@ def delete_skill(id:int, db:Session = Depends(database.get_db)):
     return skill.delete_skill(id, db)
 
 # route for viewing single skill
-@router.get('/single-skill')
+@router.get('/single-skill/{id}')
 def view_single_skill(id:int, db:Session = Depends(database.get_db)):
     return skill.view_single_skill(id,db)
 

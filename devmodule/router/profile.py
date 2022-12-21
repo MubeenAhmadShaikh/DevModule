@@ -6,34 +6,39 @@ from fastapi.responses import RedirectResponse
 from fastapi.responses import HTMLResponse
 from repository.oauth2 import get_current_user
 from core import schemas, database, models
-from .templatedir import templates
+from typing import Optional
+
 
 router = APIRouter(
     prefix='/developers',
     tags=['Profile']
 )
 
-# Search Profiles
-# @router.get('/search', status_code=status.HTTP_200_OK)
-# def search_profiles(search_query:str,db:Session =Depends(database.get_db)):
-    
-#     # profiles = profile.seachProfiles(search_query,db)
-#     return profile.seachProfiles(search_query,db)
 
 
 @router.get('/', status_code=status.HTTP_200_OK)
-def view_all_profiles(request:Request,db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):
-    profiles = profile.view_all_profiles(db)
-    user =  current_user
-    return {"profiles":profiles,"user":user}
-
-@router.get('/developers-explore',status_code=status.HTTP_200_OK)
-def view_all_profiles( db:Session = Depends(database.get_db)):    
+def view_all_profiles(db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     profiles = profile.view_all_profiles(db)
     skills = []
     for prf in profiles:
         skills.append(prf.skill) 
-    return {"profiles":profiles}
+    user =  current_user
+    return {"profiles":profiles,"user":user}
+
+@router.get('/developers-explore',status_code=status.HTTP_200_OK)
+def view_all_profiles(query: str | None = None, db:Session = Depends(database.get_db)):   
+    if(query):
+        profiles = profile.search_profiles(query,db)
+        skills = []
+        for prf in profiles:
+            skills.append(prf.skill)
+        return {"profiles":profiles}
+    else: 
+        profiles = profile.view_all_profiles(db)
+        skills = []
+        for prf in profiles:
+            skills.append(prf.skill) 
+        return {"profiles":profiles}
     
 # Single Profile route for authenticated users
 @router.get('/profile/{id}')
@@ -46,7 +51,10 @@ def view_single_profile(id:int, db:Session =Depends(database.get_db), current_us
     majorSkills = []
     for skill in skills:
         if skill.description:
-            majorSkills.append(skill)
+           if skill.description.isspace():
+            extraSkills.append(skill)    
+           else:
+             majorSkills.append(skill)
         else:
             extraSkills.append(skill)
     return {'profile':profileObject,'user':user,'majorSkills':majorSkills,'extraSkills':extraSkills}
@@ -66,6 +74,23 @@ def view_single_profile(id:int, db:Session =Depends(database.get_db)):
         else:
             extraSkills.append(skill)
     return {'profile':profileObject,'majorSkills':majorSkills,'extraSkills':extraSkills}
+
+
+@router.get('/account')
+def view_account(db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):
+    profileObject = profile.view_single_profile(current_user.id,db)
+    projects = profileObject.project
+    skills = profileObject.skill
+    user = current_user
+    extraSkills = []
+    majorSkills = []
+    for skill in skills:    
+        if skill.description:
+            majorSkills.append(skill)
+        else:
+            extraSkills.append(skill)
+    return {'profile':profileObject,'user':user,'majorSkills':majorSkills,'extraSkills':extraSkills}
+
 
 
 #UPDATE Need to combine user and profile update

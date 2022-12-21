@@ -5,7 +5,7 @@ from repository.oauth2 import get_current_user
 from repository import user
 from typing import List
 from fastapi.responses import HTMLResponse
-from .templatedir import templates
+
 
 
 router = APIRouter(
@@ -34,10 +34,10 @@ later update to UUID/GUID like 'ujdhguh132h438687y32b3rh3yt7648793b'
 # def update_user(request:schemas.showUser, db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
 #     return user.update_user(request, db, current_user)
 
-# #route for deactivation of user account
-# @router.delete('/deactivate')
-# def delete_user(db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
-#     return user.delete_user(db, current_user)
+#route for deactivation of user account
+@router.delete('/deactivate', status_code=status.HTTP_200_OK)
+def delete_user(db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+    return user.delete_user(db, current_user)
 
 # # view_single_user
 # @router.get('/single-user/{id}', response_model=schemas.showUser)

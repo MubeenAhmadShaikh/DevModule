@@ -63,7 +63,7 @@ def delete_user(db:Session = Depends(database.get_db), current_user: models.User
 #UPDATE - view_single_user - profile will be displayed
 def view_single_user(id:int,db:Session = Depends(database.get_db)):
     single_user = db.query(models.User).filter(models.User.id == id).first()
-    print(single_user.first_name)
+    
     if not single_user.is_active:
         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, detail="No such user exist")
     return single_user

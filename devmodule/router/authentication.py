@@ -6,7 +6,7 @@ from repository.hashing import Hash
 from repository import token
 from repository import authentication, profile
 from fastapi.security import OAuth2PasswordRequestForm
-from .templatedir import templates
+
 router = APIRouter(
     tags=['Authentication']
 )

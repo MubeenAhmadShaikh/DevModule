@@ -12,8 +12,34 @@ from sqlalchemy import event
 #     print(profiles)
 #     return profiles
 
-def view_all_profiles(db:Session =Depends(database.get_db)):
+def view_all_profiles(db):
     all_profiles = db.query(models.Profile).all()
+    active_profiles = all_active_profiles(all_profiles)   
+    return active_profiles
+
+def all_active_profiles(all_profiles):
+    active_profiles = []
+    for profile in all_profiles:
+        if profile.user.is_active:
+            active_profiles.append(profile)
+         
+    return active_profiles
+
+def search_profiles(query:str, db:Session =Depends(database.get_db)):
+    all_profiles = db.query(models.Profile).filter(
+        models.Profile.first_name.contains(query) |
+        models.Profile.last_name.contains(query) |
+        models.Profile.short_intro.contains(query) 
+     ).all()
+    
+    if all_profiles:
+        return all_active_profiles(all_profiles)
+    else:
+        skill_filter = db.query(models.Skill).filter(
+        models.Skill.name.contains(query)).all()
+        for skill in skill_filter:
+            all_profiles.append(skill.owner)
+        all_profiles = all_active_profiles(all_profiles)
     return all_profiles
 
 def view_single_profile(id:int, db:Session =Depends(database.get_db)):
@@ -39,10 +65,9 @@ def create_profile(username,first_name,last_name, db:Session =Depends(database.g
 
 #UPDATE Need to combine user and profile update
 def update_profile(request:schemas.ProfileBase, db:Session =Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
-    # user_profile = db.query(models.Profile).filter(models.Profile.id == current_user.id)
+    user_profile = db.query(models.Profile).filter(models.Profile.id == current_user.id)
     try:    
-        user_profile = db.query(models.Profile).filter(models.Profile.user_id == current_user.id)
-        user = db.query(models.User).filter(models.User.id == user_profile.first().user_id)
+        # user = db.query(models.User).filter(models.User.id == user_profile.first().user_id)
         if not user_profile.first():
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail='No such profile exist')
         user_profile.update(request.dict())
