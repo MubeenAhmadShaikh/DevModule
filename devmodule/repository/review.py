@@ -20,16 +20,49 @@ def add_review(proj_id,request,db, current_user):
 def add_review_to_db(proj_id,request,db, current_user):
     create_review = models.Review(
         comment = request.comment,
-        vote_value = request.vote_value,
+        vote_value =request.vote_value,
         project_id = proj_id,
         owner_id = current_user.id
     )
     db.add(create_review)
     db.commit()
     db.refresh(create_review)
+    update_vote_count(proj_id,db)
+    vote_ratio = get_positive_feedback(proj_id,db)
+    update_vote_ratio(proj_id,vote_ratio,db)
 
     return create_review
 
 def view_all_review(db):
     reviews = db.query(models.Review).all()
     return reviews
+
+def update_vote_count(proj_id,db):
+    projectObj = db.query(models.Project).filter(models.Project.id == proj_id)
+    vote_update = {
+        'vote_total':projectObj.first().vote_total+1
+    }
+    projectObj.update(vote_update)
+    db.commit()
+    return "updated"
+
+def update_vote_ratio(proj_id,vote_ratio,db):
+    projectObj = db.query(models.Project).filter(models.Project.id == proj_id)
+    vote_ratio_update = {
+        'vote_ratio':round(vote_ratio,2)
+    }
+    projectObj.update(vote_ratio_update)
+    db.commit()
+    return "updated"
+
+def get_positive_feedback(project_id,db):
+    project = db.query(models.Project).filter(models.Project.id == project_id).first()
+    reviews = db.query(models.Review).filter(models.Review.project_id == project_id).all()
+    up_votes = 0
+    for review in reviews:
+        if review.vote_value == 'up':
+            up_votes += 1
+    total_votes = project.vote_total
+    vote_ratio = (up_votes/total_votes)*100
+    return vote_ratio
+

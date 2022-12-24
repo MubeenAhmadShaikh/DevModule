@@ -3,12 +3,10 @@ from typing import Optional
 
 class ProjectBase(BaseModel):
     title:str
+    featured_image:str
     description:str
     demo_link:str
     source_link:str
-    vote_total:int
-    vote_ratio:int
-
     class Config:
         orm_mode = True
 
@@ -20,9 +18,8 @@ class UserBase(BaseModel):
     is_active:Optional[bool]
 
 class showUser(BaseModel):
-    first_name:str
-    last_name:str
     email:str
+    is_active:bool
     class Config():
         orm_mode = True
 

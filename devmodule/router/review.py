@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, Request, status, APIRouter
+from fastapi import FastAPI, Depends, Request, status, APIRouter, Form
 from sqlalchemy.orm import Session
 from repository import review
 from repository.oauth2 import get_current_user
@@ -9,9 +9,13 @@ router = APIRouter(
 )
 
 @router.post('/add-review', status_code=status.HTTP_201_CREATED)
-def add_review(id:int,request:schemas.ReviewBase, db:Session= Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+def add_review(id:int,request:schemas.ReviewBase,db:Session= Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
     return review.add_review(id,request,db, current_user)
 
 @router.get('/get-reviews',status_code=status.HTTP_200_OK)
 def view_all_reviews( db:Session = Depends(database.get_db),current_user: schemas.UserBase = Depends(get_current_user)):    
     return review.view_all_review(db)
+
+@router.get('/get-positive-feedback',status_code=status.HTTP_200_OK)
+def get_positive_feedback( db:Session = Depends(database.get_db),current_user: schemas.UserBase = Depends(get_current_user)):    
+    return review.get_positive_feedback(db)

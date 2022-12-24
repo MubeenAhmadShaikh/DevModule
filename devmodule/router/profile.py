@@ -17,13 +17,27 @@ router = APIRouter(
 
 
 @router.get('/', status_code=status.HTTP_200_OK)
-def view_all_profiles(db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):
-    profiles = profile.view_all_profiles(db)
-    skills = []
-    for prf in profiles:
-        skills.append(prf.skill) 
+def view_all_profiles(query: str | None = None,db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     user =  current_user
-    return {"profiles":profiles,"user":user}
+    if(query):
+        profiles = profile.search_profiles(query,db)
+        skills = []
+        for prf in profiles:
+            skills.append(prf.skill)
+        return {"profiles":profiles,"user":user}
+    else: 
+        profiles = profile.view_all_profiles(db)
+        skills = []
+        for prf in profiles:
+            skills.append(prf.skill) 
+        return {"profiles":profiles,"user":user}
+    # 
+    # profiles = profile.view_all_profiles(db)
+    # skills = []
+    # for prf in profiles:
+    #     skills.append(prf.skill) 
+    # user =  current_user
+    # return {"profiles":profiles,"user":user}
 
 @router.get('/developers-explore',status_code=status.HTTP_200_OK)
 def view_all_profiles(query: str | None = None, db:Session = Depends(database.get_db)):   
@@ -58,6 +72,7 @@ def view_single_profile(id:int, db:Session =Depends(database.get_db), current_us
         else:
             extraSkills.append(skill)
     return {'profile':profileObject,'user':user,'majorSkills':majorSkills,'extraSkills':extraSkills}
+   
 
 
 # Single Profile route for unauthenticated users

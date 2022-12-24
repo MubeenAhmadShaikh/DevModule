@@ -52,15 +52,5 @@ def view_single_skill(id:int, db:Session = Depends(database.get_db)):
 # view all skill
 def view_all_skills(db:Session = Depends(database.get_db)):
     all_skills = db.query(models.Skill).all()
-    print(len(all_skills))
-    # all_skills = []
-    # for skill in db.query(models.Skill.name).distinct():
-    #     all_skills.append(skill)
-    # print(len(all_skills))
-    # for skill in all_skills:
-    #     if not skill.description:
-    #         print(skill.name)
+    return all_skills
     
-    # if not all_skills:
-    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No skills present')
-    # return all_skills

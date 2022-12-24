@@ -45,6 +45,7 @@ class Profile(Base):
     social_linkedin = Column(String(200), nullable=True)
     social_youtube = Column(String(200), nullable=True)
     social_website = Column(String(200), nullable=True)
+    # is_active = Column(Boolean, nullable=False)
     # owner_id = Column(Integer, ForeignKey("users.id"))
     user_id = Column(Integer,ForeignKey("users.id"))
     user = relationship("User", back_populates="profile")
@@ -61,7 +62,7 @@ class Project(Base):
     id = Column(Integer, primary_key=True, index=True)
     created = Column(String,default=timeFormat)
     title = Column(String(200),nullable=False)
-    # featured_image = models.ImageField(null=True,blank=True,default="default.jpg")
+    featured_image = Column(String(500))
     description = Column(String(2000), nullable=False)
     demo_link = Column(String(2000),nullable = True)
     source_link = Column(String(2000), nullable=True)
@@ -74,20 +75,15 @@ class Project(Base):
     # Relationships
     # owner
     # tags
-class VoteType(enum.Enum):
-    up= 'Up Vote'
-    down = 'Down Vote'
+
     
 class Review(Base):
-    vote_type = {
-        'up':'Up Vote',
-        'down':'Down Vote'
-    }
+    
     __tablename__ = 'reviews'
     id = Column(Integer, primary_key=True, index=True)
     created = Column(String,default=timeFormat)
     comment = Column(String(200),nullable=False)
-    vote_value = Column(Enum(VoteType),nullable=False)
+    vote_value = Column(String,nullable=False)
     # Relationships
     owner_id = Column(Integer,ForeignKey("profiles.id"))
     owner = relationship("Profile", back_populates="review")
