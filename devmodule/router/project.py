@@ -1,4 +1,4 @@
-
+from __future__ import annotations
 from fastapi import FastAPI, Depends, Request, status, APIRouter, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from repository import project
