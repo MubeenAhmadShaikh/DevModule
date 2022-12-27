@@ -1,3 +1,4 @@
+from __future__ import annotations
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from core import schemas, models, database
