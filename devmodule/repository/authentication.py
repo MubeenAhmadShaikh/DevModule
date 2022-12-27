@@ -1,13 +1,9 @@
-from fastapi import Depends, HTTPException, status, APIRouter, Request
-from sqlalchemy.orm import Session
-from core import models, database, schemas
-from datetime import datetime, timedelta
+from fastapi import HTTPException, status
+from core import models
+from datetime import  timedelta
 from repository.token import create_access_token
 from . import profile
-from fastapi.security import OAuth2PasswordRequestForm
-from .oauth2 import authenticate_user
 from .hashing import Hash
-from fastapi.responses import RedirectResponse
 import re
 
 ACCESS_TOKEN_EXPIRE_MINUTES=60  

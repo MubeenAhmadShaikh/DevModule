@@ -7,13 +7,16 @@ import os
 import re
 from drive import driveDB
 
-
+# Get all the developers profiles
 def view_all_profiles(db):
+    '''
+    This function is implemented to get all the profiles in db that exist.
+    '''
     all_profiles = db.query(models.Profile).all()
-    # Add is_active in profiles
     active_profiles = all_active_profiles(all_profiles)   
     return active_profiles
 
+# To get the all active users only
 def all_active_profiles(all_profiles):
     active_profiles = []
     for profile in all_profiles:
@@ -22,6 +25,7 @@ def all_active_profiles(all_profiles):
          
     return active_profiles
 
+# Search the users for profiles
 def search_profiles(query:str, db:Session =Depends(database.get_db)):
     all_profiles = db.query(models.Profile).filter(
         models.Profile.first_name.contains(query) |
@@ -39,14 +43,14 @@ def search_profiles(query:str, db:Session =Depends(database.get_db)):
         all_profiles = all_active_profiles(all_profiles)
     return all_profiles
 
+# To get the single profile using the id parameter
 def view_single_profile(id:int, db:Session =Depends(database.get_db)):
     user_profile = db.query(models.Profile).filter(models.Profile.id == id).first()
     if not user_profile:
               raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No such profile exist')
     return user_profile
 
-# Keep this for regustartion invok
-#UPDATE - Create profile will be invoked once user register - ACHIEVED
+#To create basic info of profile 
 def create_profile(username,first_name,last_name, db:Session =Depends(database.get_db)):
     user = db.query(models.User).filter(models.User.email == username).first()
     create_profile = models.Profile(
@@ -61,7 +65,7 @@ def create_profile(username,first_name,last_name, db:Session =Depends(database.g
     db.refresh(create_profile)
     return True
 
-#UPDATE Need to combine user and profile update
+#Update profile for user
 def update_profile(
     first_name,
     last_name,
@@ -111,6 +115,19 @@ def update_profile(
     except:
         response = "Something went wrong"
         return response
+
+# Specific function to delete the image
 def delete_image(id:str):
     return driveDB.delete_file(id)
 
+# To Deactivate the user profile
+def deactivate_user(db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+    is_active1 = {
+        'is_active': False
+    }
+    user_profile = db.query(models.Profile).filter(models.Profile.user_id ==  current_user.id)
+    if not user_profile.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No such user exist')
+    user_profile.update(is_active1)
+    db.commit()
+    return 'User Deleted'

@@ -8,10 +8,9 @@ import shutil
 import os
 import re
 from pathlib import Path
-
 from drive import driveDB
 
-# View all the projects
+# To get all the projects
 def view_all_projects(db:Session = Depends(database.get_db)):
     projects = db.query(models.Project).all()
     profiles= [project.owner for project in projects]
@@ -19,7 +18,7 @@ def view_all_projects(db:Session = Depends(database.get_db)):
     active_projects=all_active_profiles_projects(projects)
     return active_projects, active_profiles
 
-# View single project
+# To get single project with id
 def view_single_project(id:int, db:Session = Depends(database.get_db)):
     single_project = db.query(models.Project).filter(models.Project.id == id).first()
     
@@ -29,7 +28,7 @@ def view_single_project(id:int, db:Session = Depends(database.get_db)):
 
 
 
-# Create a project
+# To create a project
 def create_project(title,featured_image,description,demo_link,source_link, db:Session= Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
     try :
         f = open(os.path.realpath(os.curdir)+'/temp/project_images/'+featured_image.filename, 'wb')
@@ -59,7 +58,7 @@ def create_project(title,featured_image,description,demo_link,source_link, db:Se
 
     
 
-# Update a project
+# To update a project
 def update_project(id:int,title,featured_image,description,demo_link,source_link, db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
     single_project = db.query(models.Project).filter(models.Project.id == id)
     if not single_project.first():
@@ -87,12 +86,12 @@ def update_project(id:int,title,featured_image,description,demo_link,source_link
     except:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unable to Update project")
    
-
+# To delete an image from drivedb
 def delete_image(id:str):
     return driveDB.delete_file(id)
 
 
-# Delete single project
+# To Delete single project
 def delete_project(id:int,db:Session = Depends(database.get_db)):
     single_project = db.query(models.Project).filter(models.Project.id == id)
     projectObj = db.query(models.Project).filter(models.Project.id == id).first()
@@ -104,13 +103,13 @@ def delete_project(id:int,db:Session = Depends(database.get_db)):
     db.commit()
     return 'Project Deleted'
 
-
-
+# To get all the reviews of a project
 def get_project_review(id,db):
     projectObj = project.view_single_project(id,db)
     reviews = projectObj.review
     return all_active_profiles_reviews(reviews)
 
+# To search for the projects
 def search_projects(query,db):
     all_projects = db.query(models.Project).filter(
     models.Project.title.contains(query) |
@@ -129,8 +128,7 @@ def search_projects(query,db):
             print(len(all_projects))
         return all_projects
             
-
-
+# To return only active profiles projects
 def all_active_profiles_projects(all_projects):
     active_projects=[]
     for project in all_projects:
@@ -138,7 +136,7 @@ def all_active_profiles_projects(all_projects):
             active_projects.append(project)
     return active_projects
 
-
+# To return only active profiles reviews
 def all_active_profiles_reviews(all_reviews):
     active_reviews=[]
     for review in all_reviews:

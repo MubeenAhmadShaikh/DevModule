@@ -8,7 +8,7 @@ from core import models, database, schemas
 # in both SINGLE_SKILL and ALL_SKILL function
 
 
-# create a skill
+# To create a skill
 def create_skill(request, db,current_user):
     for skill in current_user.skill:
         if (skill.name == request.name.lower()):
@@ -23,8 +23,7 @@ def create_skill(request, db,current_user):
     db.refresh(create_skill)
     return create_skill
 
-
-# update a skill
+# To update a skill
 def update_skill(id:int, request:schemas.skillBase,db:Session = Depends(database.get_db)):
     update_skill = db.query(models.Skill).filter(models.Skill.id == id)
     if not update_skill.first():
@@ -33,7 +32,7 @@ def update_skill(id:int, request:schemas.skillBase,db:Session = Depends(database
     db.commit()
     return 'Updated skill'
 
-# delete a skill
+# To delete a skill
 def delete_skill(id:int, db:Session = Depends(database.get_db)):
     delete_skill = db.query(models.Skill).filter(models.Skill.id == id)
     if not delete_skill.first():
@@ -43,13 +42,14 @@ def delete_skill(id:int, db:Session = Depends(database.get_db)):
     return 'Deleted skill'
 
 
-# view single skill
+# To get single skill
 def view_single_skill(id:int, db:Session = Depends(database.get_db)):
     single_skill = db.query(models.Skill).filter(models.Skill.id == id).first()
     if not single_skill:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No such skill exist')
     return single_skill
-# view all skill
+
+# To view all skill
 def view_all_skills(db:Session = Depends(database.get_db)):
     all_skills = db.query(models.Skill).all()
     return all_skills

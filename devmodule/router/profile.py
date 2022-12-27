@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 
-
+# View all developers route for authenticated user
 @router.get('/', status_code=status.HTTP_200_OK)
 def view_all_profiles(query: str | None = None,db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     if(query):
@@ -30,14 +30,8 @@ def view_all_profiles(query: str | None = None,db:Session =Depends(database.get_
         for prf in profiles:
             skills.append(prf.skill) 
         return {"profiles":profiles}
-    # 
-    # profiles = profile.view_all_profiles(db)
-    # skills = []
-    # for prf in profiles:
-    #     skills.append(prf.skill) 
-    # user =  current_user
-    # return {"profiles":profiles,"user":user}
 
+# View all developers route for unauthenticated user
 @router.get('/developers-explore',status_code=status.HTTP_200_OK)
 def view_all_profiles(query: str | None = None, db:Session = Depends(database.get_db)):   
     if(query):
@@ -72,7 +66,6 @@ def view_single_profile(id:int, db:Session =Depends(database.get_db), current_us
     return {'profile':profileObject,'majorSkills':majorSkills,'extraSkills':extraSkills}
    
 
-
 # Single Profile route for unauthenticated users
 @router.get('/profile-explore/{id}')
 def view_single_profile(id:int, db:Session =Depends(database.get_db)):
@@ -89,12 +82,12 @@ def view_single_profile(id:int, db:Session =Depends(database.get_db)):
     return {'profile':profileObject,'majorSkills':majorSkills,'extraSkills':extraSkills}
 
 
+# route for viewing the account/profile details of current user
 @router.get('/account')
 def view_account(db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     profileObject = profile.view_single_profile(current_user.id,db)
     projects = profileObject.project
     skills = profileObject.skill
-    user = current_user
     extraSkills = []
     majorSkills = []
     for skill in skills:    
@@ -102,11 +95,9 @@ def view_account(db:Session =Depends(database.get_db), current_user: schemas.Use
             majorSkills.append(skill)
         else:
             extraSkills.append(skill)
-    return {'profile':profileObject,'user':user,'majorSkills':majorSkills,'extraSkills':extraSkills}
+    return {'profile':profileObject,'majorSkills':majorSkills,'extraSkills':extraSkills}
 
-
-
-#UPDATE Need to combine user and profile update
+#route for profile update
 @router.put('/update-profile')
 def update_profile(
     first_name:str = Form(...),
@@ -126,24 +117,13 @@ def update_profile(
     social_github, social_twitter, social_linkedin, social_youtube, social_website,db, current_user)
 
 
-# DEPRECATED No need of profile deletion directly account will be deleted
-# @router.delete('/delete-profile/{id}')
-# def delete_profile(id:int,db:Session =Depends(database.get_db)):
-#     return profile.delete_profile(id,db)
+#route for deactivation of user account
+@router.delete('/deactivate-account', status_code=status.HTTP_200_OK)
+def deactivate_user(db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+    return profile.deactivate_user(db,current_user)
 
 
-# OG
-# @router.get('/', response_class=HTMLResponse)
-# def view_all_profiles(request:Request,db:Session =Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
-#     if current_user is None:
-#         errors=[]
-#         errors.append("Please login to access this page")
-#         context = {"request":request,"errors":errors}
-#         return RedirectResponse(url='/login', status_code=status.HTTP_302_FOUND)
-#     else:
-#         developers =  profile.view_all_profiles(db)
-#         context = {"request":request,"developers":developers,"user":current_user}
-#         return templates.TemplateResponse('index.html',context)
+
 
 
 

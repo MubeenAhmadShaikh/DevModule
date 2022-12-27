@@ -1,15 +1,9 @@
 
 from fastapi import FastAPI, Depends, Request, status, APIRouter, UploadFile, File, Form
 from sqlalchemy.orm import Session
-from pathlib import Path
 from repository import project
 from repository.oauth2 import get_current_user
 from core import schemas, database, models
-from fastapi.responses import FileResponse
-# BASE_DIR = Path(__file__).resolve().parent
-# templates = Jinja2Templates(directory=str(Path(BASE_DIR, 'templates')))
-# app = FastAPI()
-# app.mount("/static", StaticFiles(directory=str(Path(BASE_DIR, 'static'))), name="static")
 
 router = APIRouter(
     prefix='/projects',
@@ -28,10 +22,6 @@ def create_project(
     current_user: models.User = Depends(get_current_user)
 ):
     return project.create_project(title,featured_image, description,demo_link,source_link, db, current_user)
-
-
-
-
 
 # Route for updating a project
 @router.put('/update-project/{id}', status_code=status.HTTP_200_OK)
@@ -76,10 +66,8 @@ def view_all_projects( query:str | None = None, db:Session = Depends(database.ge
 @router.get('/project/{id}',status_code=status.HTTP_200_OK)
 def view_single_project(id:int,db:Session = Depends(database.get_db),current_user: schemas.UserBase = Depends(get_current_user)):
     projectObject = project.view_single_project(id,db)
-    # user = current_user
     owner = projectObject.owner
     reviews = project.get_project_review(id,db)
-    # review_owner = [review.owner for review in reviews]
     return {"project":projectObject}
 
 
@@ -87,17 +75,12 @@ def view_single_project(id:int,db:Session = Depends(database.get_db),current_use
 @router.get('/project-explore/{id}',status_code=status.HTTP_200_OK)
 def view_single_project(id:int,db:Session = Depends(database.get_db)): 
     projectObject = project.view_single_project(id,db)
-    # path ='./temp/project_images/'
     owner = projectObject.owner
     reviews = project.get_project_review(id, db)
     return {"project":projectObject}
-    # return project.view_single_project(id,db)
 
-
+# route for getting the review of a particular project
 @router.get('/get-project-review/{prj_id}',status_code=status.HTTP_200_OK)
 def get_project_review(id:int,db:Session= Depends(database.get_db), current_user = Depends(get_current_user)):
    return project.get_project_review(id,db)
 
-@router.post('/upload')
-def upload_file(project_img:UploadFile = File(...) , db:Session = Depends(database.get_db)):
-    return project.upload_file(project_img,db)
