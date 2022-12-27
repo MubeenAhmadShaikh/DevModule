@@ -29,10 +29,21 @@ def create_project(
 ):
     return project.create_project(title,featured_image, description,demo_link,source_link, db, current_user)
 
+
+
+
+
 # Route for updating a project
 @router.put('/update-project/{id}', status_code=status.HTTP_200_OK)
-def update_project(id:int,request:schemas.ProjectBase, db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
-    return project.update_project(id,request,db)
+def update_project(id:int,
+    title:str = Form(...),
+    featured_image:UploadFile = File(...),
+    description:str = Form(...),
+    demo_link:str = Form(...),
+    source_link:str = Form(...),
+    db:Session = Depends(database.get_db),
+    current_user: models.User = Depends(get_current_user)):
+    return project.update_project(id,title,featured_image,description,demo_link,source_link,db)
 
 # Route for deleting a project
 @router.delete('/delete-project/{id}')
@@ -42,16 +53,18 @@ def delete_project(id:int,db:Session = Depends(database.get_db)):
 
 # Route for viewing all project for authorized user
 @router.get('/',status_code=status.HTTP_200_OK)
-def view_all_projects( db:Session = Depends(database.get_db),current_user: schemas.UserBase= Depends(get_current_user)):    
-    projects, profiles = project.view_all_projects(db)
-    user = current_user
-    return {"projects":projects,"profiles":profiles,"user":user}
+def view_all_projects(query:str | None =None, db:Session = Depends(database.get_db),current_user: schemas.UserBase= Depends(get_current_user)):    
+    if(query):
+        projects = project.search_projects(query,db)
+        return {"projects":projects}
+    else: 
+        projects, profiles = project.view_all_projects(db)
+        return {"projects":projects }
     
 
 # Route for all projects for unauthorized user
 @router.get('/projects-explore',status_code=status.HTTP_200_OK)
 def view_all_projects( query:str | None = None, db:Session = Depends(database.get_db)):    
-    # projects, profiles = project.view_all_projects(db)
     if(query):
         projects = project.search_projects(query,db)
         return {"projects":projects}
@@ -77,7 +90,7 @@ def view_single_project(id:int,db:Session = Depends(database.get_db)):
     # path ='./temp/project_images/'
     owner = projectObject.owner
     reviews = project.get_project_review(id, db)
-    return {"project":projectObject,}
+    return {"project":projectObject}
     # return project.view_single_project(id,db)
 
 

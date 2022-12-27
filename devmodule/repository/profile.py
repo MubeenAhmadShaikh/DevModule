@@ -1,26 +1,23 @@
-from fastapi import FastAPI, Depends, status, HTTPException
+from fastapi import FastAPI, Depends, status, HTTPException, Form, UploadFile, File
 from sqlalchemy.orm import Session
 from repository.oauth2 import get_current_user
 from core import schemas, database, models
 from sqlalchemy import event
+import os
+import re
+from drive import driveDB
 
-
-# def seachProfiles(search_query, db:Session=Depends(database.get_db)):
-#     print(search_query)
-#     profiles = db.query(models.Profile).filter(models.Profile.first_name.in_('Dennis'))
-#     # profiles = db.query(models.Profile).filter(models.Profile.first_name.contains(search_query))
-#     print(profiles)
-#     return profiles
 
 def view_all_profiles(db):
     all_profiles = db.query(models.Profile).all()
+    # Add is_active in profiles
     active_profiles = all_active_profiles(all_profiles)   
     return active_profiles
 
 def all_active_profiles(all_profiles):
     active_profiles = []
     for profile in all_profiles:
-        if profile.user.is_active:
+        if profile.is_active:
             active_profiles.append(profile)
          
     return active_profiles
@@ -56,6 +53,7 @@ def create_profile(username,first_name,last_name, db:Session =Depends(database.g
         first_name = first_name,
         last_name = last_name,
         username = username,
+        is_active=True,
         user_id= user.id
     )
     db.add(create_profile)
@@ -64,27 +62,55 @@ def create_profile(username,first_name,last_name, db:Session =Depends(database.g
     return True
 
 #UPDATE Need to combine user and profile update
-def update_profile(request:schemas.ProfileBase, db:Session =Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+def update_profile(
+    first_name,
+    last_name,
+    profile_image,
+    location,
+    short_intro,
+    bio,
+    social_github,
+    social_twitter,
+    social_linkedin,
+    social_youtube,
+    social_website, 
+    db:Session =Depends(database.get_db), 
+    current_user: models.User = Depends(get_current_user)):
     user_profile = db.query(models.Profile).filter(models.Profile.id == current_user.id)
     try:    
         # user = db.query(models.User).filter(models.User.id == user_profile.first().user_id)
         if not user_profile.first():
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail='No such profile exist')
-        user_profile.update(request.dict())
+        f = open(os.path.realpath(os.curdir)+'/temp/profile_images/'+profile_image.filename, 'wb')
+        f.write(profile_image.file.read())
+        f.close()
+        page = 'profile'
+        profile_img_id = driveDB.upload_file(profile_image.filename,os.path.realpath(os.curdir)+'/temp/profile_images/'+profile_image.filename, page)
+        weburl = driveDB.get_file_with_id(profile_img_id).get('webContentLink')
+        profileObj = db.query(models.Profile).filter(models.Profile.id == current_user.id).first()
+        if profileObj.profile_image:
+            prev_image_id = re.search('=(.*?)&', profileObj.profile_image).group(1)
+            delete_image(prev_image_id)
+        user_profile.update({
+            'first_name':first_name,
+            'last_name':last_name,
+            'profile_image':weburl,
+            'location':location,
+            'short_intro':short_intro,
+            'bio':bio,
+            'social_github':social_github,
+            'social_twitter':social_twitter,
+            'social_linkedin':social_linkedin,
+            'social_youtube':social_youtube,
+            'social_website':social_website,
+        })
         db.commit()
-
+        os.remove(os.path.realpath(os.curdir) + '/temp/profile_images/' + profile_image.filename)
         response = "Profile updated"
         return response
     except:
         response = "Something went wrong"
         return response
+def delete_image(id:str):
+    return driveDB.delete_file(id)
 
-# DEPRECATED No need of profile deletion directly account will be deleted
-# User cannot delete a profile directly user will be deleted
-# def delete_profile(id:int,db:Session =Depends(database.get_db)):
-#     user_profile = db.query(models.Profile).filter(models.Profile.id == id)
-#     if not user_profile.first():
-#               raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail='No such profile exist')
-#     user_profile.delete()
-#     db.commit()
-#     return 'Profile deleted'

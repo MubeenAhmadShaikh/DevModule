@@ -5,9 +5,12 @@ from googleapiclient.http import MediaFileUpload
 serv = main.create_service()
 
 
-def upload_file(filename, coreFile):
+def upload_file(filename, coreFile, page):
     try:
-        file_metadata = {'name': filename, 'parents': ['1z4jger2ELLj_OupQzcl8dIAAV6Q0OQki']}
+        if page == 'project':
+            file_metadata = {'name': filename, 'parents': ['1z4jger2ELLj_OupQzcl8dIAAV6Q0OQki']}
+        else:
+            file_metadata = {'name': filename, 'parents': ['1s2TvFOuRYJnejmXPZDQE8vQ38jieqGwa']}
         media = MediaFileUpload(coreFile, mimetype='image/jpg')
         file = serv.files().create(body=file_metadata, media_body=media, fields='id').execute()
         print(F'File ID: {file.get("id")}')

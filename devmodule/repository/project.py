@@ -6,6 +6,7 @@ from repository.oauth2 import get_current_user
 from repository import project, profile
 import shutil
 import os
+import re
 from pathlib import Path
 
 from drive import driveDB
@@ -21,6 +22,7 @@ def view_all_projects(db:Session = Depends(database.get_db)):
 # View single project
 def view_single_project(id:int, db:Session = Depends(database.get_db)):
     single_project = db.query(models.Project).filter(models.Project.id == id).first()
+    
     if not single_project:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="No such Project exist")
     return single_project
@@ -33,7 +35,8 @@ def create_project(title,featured_image,description,demo_link,source_link, db:Se
         f = open(os.path.realpath(os.curdir)+'/temp/project_images/'+featured_image.filename, 'wb')
         f.write(featured_image.file.read())
         f.close()
-        feature_img_id = driveDB.upload_file(featured_image.filename,os.path.realpath(os.curdir)+'/temp/project_images/'+featured_image.filename)
+        page = 'project'
+        feature_img_id = driveDB.upload_file(featured_image.filename,os.path.realpath(os.curdir)+'/temp/project_images/'+featured_image.filename, page)
         weburl = driveDB.get_file_with_id(feature_img_id).get('webContentLink')
         print(weburl)
         create_project = models.Project(
@@ -49,7 +52,7 @@ def create_project(title,featured_image,description,demo_link,source_link, db:Se
         db.add(create_project)
         db.commit()
         db.refresh(create_project)      
-        
+        os.remove(os.path.realpath(os.curdir) + '/temp/project_images/' + featured_image.filename)
         return create_project
     except:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unable to Create project")
@@ -57,17 +60,44 @@ def create_project(title,featured_image,description,demo_link,source_link, db:Se
     
 
 # Update a project
-def update_project(id:int, request:schemas.ProjectBase, db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+def update_project(id:int,title,featured_image,description,demo_link,source_link, db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
     single_project = db.query(models.Project).filter(models.Project.id == id)
     if not single_project.first():
               raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail='No such project exist')
-    single_project.update(request.dict())
-    db.commit()
-    return 'Project updated'
+    try:
+        f = open(os.path.realpath(os.curdir)+'/temp/project_images/'+featured_image.filename, 'wb')
+        f.write(featured_image.file.read())
+        f.close()
+        page = 'project'
+        feature_img_id = driveDB.upload_file(featured_image.filename,os.path.realpath(os.curdir)+'/temp/project_images/'+featured_image.filename, page)
+        weburl = driveDB.get_file_with_id(feature_img_id).get('webContentLink')
+        projectObj = db.query(models.Project).filter(models.Project.id == id).first()
+        prev_image_id = re.search('=(.*?)&', projectObj.featured_image).group(1)
+        delete_image(prev_image_id)
+        single_project.update({
+            'title':title,
+            'featured_image':weburl,
+            'description':description,
+            'demo_link':demo_link,
+            'source_link':source_link,
+        })
+        db.commit()
+        os.remove(os.path.realpath(os.curdir) + '/temp/project_images/' + featured_image.filename)
+        return 'Project updated'
+    except:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unable to Update project")
+   
 
-# Delete single projects
+def delete_image(id:str):
+    return driveDB.delete_file(id)
+
+
+# Delete single project
 def delete_project(id:int,db:Session = Depends(database.get_db)):
     single_project = db.query(models.Project).filter(models.Project.id == id)
+    projectObj = db.query(models.Project).filter(models.Project.id == id).first()
+    prev_image_id = re.search('=(.*?)&', projectObj.featured_image).group(1)
+    delete_image(prev_image_id)
     if not single_project.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="No such project exist")
     single_project.delete()
@@ -104,7 +134,7 @@ def search_projects(query,db):
 def all_active_profiles_projects(all_projects):
     active_projects=[]
     for project in all_projects:
-        if (project.owner.user.is_active):
+        if (project.owner.is_active):
             active_projects.append(project)
     return active_projects
 
@@ -112,6 +142,6 @@ def all_active_profiles_projects(all_projects):
 def all_active_profiles_reviews(all_reviews):
     active_reviews=[]
     for review in all_reviews:
-        if (review.owner.user.is_active):
+        if (review.owner.is_active):
             active_reviews.append(review)
     return active_reviews
