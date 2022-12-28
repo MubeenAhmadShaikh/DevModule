@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from repository import project
 from repository.oauth2 import get_current_user
 from core import schemas, database, models
-
+from typing import Union
 router = APIRouter(
     prefix='/projects',
     tags=['Projects']
@@ -37,13 +37,13 @@ def update_project(id:int,
 
 # Route for deleting a project
 @router.delete('/delete-project/{id}')
-def delete_project(id:int,db:Session = Depends(database.get_db)):
+def delete_project(id:int,db:Session = Depends(database.get_db),current_user: schemas.UserBase= Depends(get_current_user)):
     return project.delete_project(id,db)
 
 
 # Route for viewing all project for authorized user
 @router.get('/',status_code=status.HTTP_200_OK)
-def view_all_projects(query:str | None =None, db:Session = Depends(database.get_db),current_user: schemas.UserBase= Depends(get_current_user)):    
+def view_all_projects(query:Union[str, None] =None, db:Session = Depends(database.get_db),current_user: schemas.UserBase= Depends(get_current_user)):    
     if(query):
         projects = project.search_projects(query,db)
         return {"projects":projects}
@@ -54,7 +54,7 @@ def view_all_projects(query:str | None =None, db:Session = Depends(database.get_
 
 # Route for all projects for unauthorized user
 @router.get('/projects-explore',status_code=status.HTTP_200_OK)
-def view_all_projects( query:str | None = None, db:Session = Depends(database.get_db)):    
+def view_all_projects( query:Union[str, None] =None, db:Session = Depends(database.get_db)):    
     if(query):
         projects = project.search_projects(query,db)
         return {"projects":projects}

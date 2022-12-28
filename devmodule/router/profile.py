@@ -6,7 +6,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.responses import HTMLResponse
 from repository.oauth2 import get_current_user
 from core import schemas, database, models
-from typing import Optional
+from typing import Union
 
 
 router = APIRouter(
@@ -17,7 +17,7 @@ router = APIRouter(
 
 # View all developers route for authenticated user
 @router.get('/', status_code=status.HTTP_200_OK)
-def view_all_profiles(query: str | None = None,db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):
+def view_all_profiles(query:Union[str, None] =None,db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     if(query):
         profiles = profile.search_profiles(query,db)
         skills = []
@@ -33,7 +33,7 @@ def view_all_profiles(query: str | None = None,db:Session =Depends(database.get_
 
 # View all developers route for unauthenticated user
 @router.get('/developers-explore',status_code=status.HTTP_200_OK)
-def view_all_profiles(query: str | None = None, db:Session = Depends(database.get_db)):   
+def view_all_profiles(query:Union[str, None] =None, db:Session = Depends(database.get_db)):   
     if(query):
         profiles = profile.search_profiles(query,db)
         skills = []

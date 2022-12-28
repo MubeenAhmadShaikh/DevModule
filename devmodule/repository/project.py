@@ -125,7 +125,6 @@ def search_projects(query,db):
         for project in active_projects:
             if (project.owner.first_name.lower() in query.lower()) or (project.owner.last_name.lower() in query.lower()) :
                 all_projects.append(project)
-            print(len(all_projects))
         return all_projects
             
 # To return only active profiles projects

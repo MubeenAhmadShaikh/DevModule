@@ -4,13 +4,13 @@ from datetime import datetime, timedelta
 from core import schemas, models, database
 from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException, status, Request
-
+from typing import Union
 
 SECRET_KEY = "481636116ef77f702cbb42b9fefe18bf1eb44e78192d6c713a69b7fbe6ea639f"
 ALGORITHM = "HS256" 
 
 # Creation of access token once creds are valid
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+def create_access_token(data: dict, expires_delta: Union[timedelta, None] =None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
