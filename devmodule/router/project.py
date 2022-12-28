@@ -16,8 +16,8 @@ def create_project(
     title:str = Form(...),
     featured_image:UploadFile = File(...),
     description:str = Form(...),
-    demo_link:str = Form(...),
-    source_link:str = Form(...),
+    demo_link:Union[str, None] = None,
+    source_link:Union[str, None] = None,
     db:Session= Depends(database.get_db),
     current_user: models.User = Depends(get_current_user)
 ):
@@ -29,8 +29,8 @@ def update_project(id:int,
     title:str = Form(...),
     featured_image:UploadFile = File(...),
     description:str = Form(...),
-    demo_link:str = Form(...),
-    source_link:str = Form(...),
+    demo_link:Union[str, None] = None,
+    source_link:Union[str, None] = None,
     db:Session = Depends(database.get_db),
     current_user: models.User = Depends(get_current_user)):
     return project.update_project(id,title,featured_image,description,demo_link,source_link,db)
@@ -42,25 +42,29 @@ def delete_project(id:int,db:Session = Depends(database.get_db),current_user: sc
 
 
 # Route for viewing all project for authorized user
-@router.get('/',status_code=status.HTTP_200_OK)
-def view_all_projects(query:Union[str, None] =None, db:Session = Depends(database.get_db),current_user: schemas.UserBase= Depends(get_current_user)):    
+@router.get('',status_code=status.HTTP_200_OK)
+def view_all_projects(query:Union[str, None] =None,page_start: int = 1, page_end: int = 3, db:Session = Depends(database.get_db),current_user: schemas.UserBase= Depends(get_current_user)):    
     if(query):
         projects = project.search_projects(query,db)
         return {"projects":projects}
     else: 
-        projects, profiles = project.view_all_projects(db)
-        return {"projects":projects }
+        # projects, profiles = project.view_all_projects(db)
+        # return {"projects":projects }
+        projects = project.view_all_projects(page_start,page_end,db)
+        return projects
     
 
 # Route for all projects for unauthorized user
 @router.get('/projects-explore',status_code=status.HTTP_200_OK)
-def view_all_projects( query:Union[str, None] =None, db:Session = Depends(database.get_db)):    
+def view_all_projects( query:Union[str, None] =None, page_start: int = 1, page_end: int = 3, db:Session = Depends(database.get_db)):    
     if(query):
         projects = project.search_projects(query,db)
         return {"projects":projects}
     else: 
-        projects, profiles = project.view_all_projects(db)
-        return {"projects":projects,"profiles":profiles}
+        # projects, profiles = project.view_all_projects(page_start,page_end,db)
+        projects = project.view_all_projects(page_start,page_end,db)
+        # return {"projects":projects,"profiles":profiles}
+        return projects
 
 # Route for viewing single project for authorized user
 @router.get('/project/{id}',status_code=status.HTTP_200_OK)

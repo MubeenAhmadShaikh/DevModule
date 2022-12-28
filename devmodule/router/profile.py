@@ -16,8 +16,8 @@ router = APIRouter(
 
 
 # View all developers route for authenticated user
-@router.get('/', status_code=status.HTTP_200_OK)
-def view_all_profiles(query:Union[str, None] =None,db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):
+@router.get('', status_code=status.HTTP_200_OK)
+def view_all_profiles(query:Union[str, None] =None,page_start:int = 1, page_end:int = 3,db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     if(query):
         profiles = profile.search_profiles(query,db)
         skills = []
@@ -25,15 +25,15 @@ def view_all_profiles(query:Union[str, None] =None,db:Session =Depends(database.
             skills.append(prf.skill)
         return {"profiles":profiles}
     else: 
-        profiles = profile.view_all_profiles(db)
+        profiles = profile.view_all_profiles(page_start,page_end,db)
         skills = []
-        for prf in profiles:
+        for prf in profiles['profiles']:
             skills.append(prf.skill) 
-        return {"profiles":profiles}
+        return profiles
 
 # View all developers route for unauthenticated user
 @router.get('/developers-explore',status_code=status.HTTP_200_OK)
-def view_all_profiles(query:Union[str, None] =None, db:Session = Depends(database.get_db)):   
+def view_all_profiles(query:Union[str, None] =None,page_start:int = 1, page_end:int = 3, db:Session = Depends(database.get_db)):   
     if(query):
         profiles = profile.search_profiles(query,db)
         skills = []
@@ -41,11 +41,11 @@ def view_all_profiles(query:Union[str, None] =None, db:Session = Depends(databas
             skills.append(prf.skill)
         return {"profiles":profiles}
     else: 
-        profiles = profile.view_all_profiles(db)
+        profiles = profile.view_all_profiles(page_start,page_end,db)
         skills = []
-        for prf in profiles:
+        for prf in profiles['profiles']:
             skills.append(prf.skill) 
-        return {"profiles":profiles}
+        return profiles
     
 # Single Profile route for authenticated users
 @router.get('/profile/{id}')
@@ -106,11 +106,11 @@ def update_profile(
     location:str = Form(...),
     short_intro:str = Form(...),
     bio:str = Form(...),
-    social_github:str = Form(...),
-    social_twitter:str = Form(...),
-    social_linkedin:str = Form(...),
-    social_youtube:str = Form(...),
-    social_website:str = Form(...),
+    social_github: Union[str, None] = None,
+    social_twitter:Union[str, None] = None,
+    social_linkedin:Union[str, None] = None,
+    social_youtube:Union[str, None] = None,
+    social_website:Union[str, None] = None,
     db:Session =Depends(database.get_db),
     current_user: models.User = Depends(get_current_user)):
     return profile.update_profile( first_name, last_name, profile_image, location, short_intro, bio,

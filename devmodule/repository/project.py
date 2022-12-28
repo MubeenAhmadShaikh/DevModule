@@ -4,19 +4,42 @@ from fastapi import Depends, HTTPException, status, File, UploadFile
 from core import schemas, database, models
 from repository.oauth2 import get_current_user
 from repository import project, profile
-import shutil
+from sqlalchemy import desc
 import os
 import re
 from pathlib import Path
 from drive import driveDB
 
 # To get all the projects
-def view_all_projects(db:Session = Depends(database.get_db)):
-    projects = db.query(models.Project).all()
+def view_all_projects(page_start:int, page_end:int,db:Session = Depends(database.get_db)):
+    projects = db.query(models.Project).order_by(desc(models.Project.created)).all()
     profiles= [project.owner for project in projects]
     active_profiles = profile.all_active_profiles(profiles)
     active_projects=all_active_profiles_projects(projects)
-    return active_projects, active_profiles
+    data_length = len(active_projects)
+    start = (page_start - 1) * page_end
+    end = start + page_end
+    response = {
+        "profiles":active_profiles,
+        "data": active_projects[start:end],
+        "total": data_length,
+        "count": end,
+        "pagination": {}
+    }
+    if end >= data_length:
+        response["pagination"]["next"] = None
+        if page_start > 1:
+            response["pagination"]["previous"] = f"?page_start={page_start-1}&page_end={page_end}"
+        else:
+            response["pagination"]["previous"] = None
+    else:
+        if page_start > 1:
+            response["pagination"]["previous"] = f"?page_start={page_start-1}&page_end={page_end}"
+        else:
+            response["pagination"]["previous"] = None
+        response["pagination"]["next"] = f"?page_start={page_start+1}&page_end={page_end}"
+    return response
+    # return active_projects, active_profiles
 
 # To get single project with id
 def view_single_project(id:int, db:Session = Depends(database.get_db)):
@@ -53,8 +76,8 @@ def create_project(title,featured_image,description,demo_link,source_link, db:Se
         db.refresh(create_project)      
         os.remove(os.path.realpath(os.curdir) + '/temp/project_images/' + featured_image.filename)
         return create_project
-    except Exception as e:
-        return e
+    except:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unable to Add your project")
 
     
 

@@ -2,19 +2,43 @@ from fastapi import FastAPI, Depends, status, HTTPException, Form, UploadFile, F
 from sqlalchemy.orm import Session
 from repository.oauth2 import get_current_user
 from core import schemas, database, models
-from sqlalchemy import event
+from sqlalchemy import desc
 import os
 import re
 from drive import driveDB
 
 # Get all the developers profiles
-def view_all_profiles(db):
+def view_all_profiles(page_start,page_end,db):
     '''
     This function is implemented to get all the profiles in db that exist.
     '''
-    all_profiles = db.query(models.Profile).all()
+    all_profiles = db.query(models.Profile).order_by(desc(models.Profile.created)).all()
+    all_profiles1 = db.query(models.Profile)
+    print(all_profiles1.order_by(desc(models.Profile.created)).all())
     active_profiles = all_active_profiles(all_profiles)   
-    return active_profiles
+    data_length = len(active_profiles)
+    start = (page_start - 1) * page_end
+    end = start + page_end
+    response = {
+        "profiles": active_profiles[start:end],
+        "total": data_length,
+        "count": end,
+        "pagination": {}
+    }
+    if end >= data_length:
+        response["pagination"]["next"] = None
+        if page_start > 1:
+            response["pagination"]["previous"] = f"?page_start={page_start-1}&page_end={page_end}"
+        else:
+            response["pagination"]["previous"] = None
+    else:
+        if page_start > 1:
+            response["pagination"]["previous"] = f"?page_start={page_start-1}&page_end={page_end}"
+        else:
+            response["pagination"]["previous"] = None
+        response["pagination"]["next"] = f"?page_start={page_start+1}&page_end={page_end}"
+    return response
+    
 
 # To get the all active users only
 def all_active_profiles(all_profiles):
@@ -113,8 +137,7 @@ def update_profile(
         response = "Profile updated"
         return response
     except:
-        response = "Something went wrong"
-        return response
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unable to update your project")
 
 # Specific function to delete the image
 def delete_image(id:str):
