@@ -11,7 +11,7 @@ app = FastAPI()
 models.Base.metadata.create_all(engine)
 origins = [
     "http://127.0.0.1:5500",
-    "https://https://devmodule-agn2.onrender.com",
+    "https://devmodule-agn2.onrender.com",
 ]
 
 app.add_middleware(
