@@ -53,8 +53,8 @@ def create_project(title,featured_image,description,demo_link,source_link, db:Se
         db.refresh(create_project)      
         os.remove(os.path.realpath(os.curdir) + '/temp/project_images/' + featured_image.filename)
         return create_project
-    except:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unable to Create project")
+    except Exception as e:
+        return e
 
     
 
