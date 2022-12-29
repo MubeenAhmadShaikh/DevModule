@@ -14,7 +14,6 @@ def view_all_profiles(page_start,page_end,db):
     '''
     all_profiles = db.query(models.Profile).order_by(desc(models.Profile.created)).all()
     all_profiles1 = db.query(models.Profile)
-    print(all_profiles1.order_by(desc(models.Profile.created)).all())
     active_profiles = all_active_profiles(all_profiles)   
     data_length = len(active_profiles)
     start = (page_start - 1) * page_end
@@ -50,22 +49,74 @@ def all_active_profiles(all_profiles):
     return active_profiles
 
 # Search the users for profiles
-def search_profiles(query:str, db:Session =Depends(database.get_db)):
+def search_profiles(query:str,page_start, page_end, db:Session =Depends(database.get_db)):
     all_profiles = db.query(models.Profile).filter(
         models.Profile.first_name.contains(query) |
-        models.Profile.last_name.contains(query) |
-        models.Profile.short_intro.contains(query) 
+        models.Profile.last_name.contains(query) 
      ).all()
-    
+    start = (page_start - 1) * page_end
+    end = start + page_end
+    response = {}
     if all_profiles:
-        return all_active_profiles(all_profiles)
+        active_profiles = all_active_profiles(all_profiles)
+        data_length = len(active_profiles)
+        response = {
+            "profiles": active_profiles[start:end],
+            "total": data_length,
+            "count": end,
+            "pagination": {}
+        }   
     else:
+        short_intro_profiles = db.query(models.Profile).filter(models.Profile.short_intro.contains(query)).all()
+        short_intro_active_profiles = all_active_profiles(short_intro_profiles)
         skill_filter = db.query(models.Skill).filter(
         models.Skill.name.contains(query)).all()
         for skill in skill_filter:
-            all_profiles.append(skill.owner)
-        all_profiles = all_active_profiles(all_profiles)
-    return all_profiles
+            if skill.owner not in all_profiles:
+                all_profiles.append(skill.owner)
+        active_profiles = all_active_profiles(all_profiles)
+        for profile in short_intro_active_profiles:
+            if profile not in active_profiles:
+                active_profiles.append(profile)
+        data_length = len(active_profiles)
+        response = {
+            "profiles": active_profiles[start:end],
+            "total": data_length,
+            "count": end,
+            "pagination": {}
+        } 
+    if end >= data_length:
+        response["pagination"]["next"] = None
+        if page_start > 1:
+            response["pagination"]["previous"] = f"?query={query}&page_start={page_start-1}&page_end={page_end}"
+        else:
+            response["pagination"]["previous"] = None
+    else:
+        if page_start > 1:
+            response["pagination"]["previous"] = f"?query={query}&page_start={page_start-1}&page_end={page_end}"
+        else:
+            response["pagination"]["previous"] = None
+        response["pagination"]["next"] = f"?query={query}&page_start={page_start+1}&page_end={page_end}"
+    return response
+        
+# OG
+# Search the users for profiles
+# def search_profiles(query:str, db:Session =Depends(database.get_db)):
+#     all_profiles = db.query(models.Profile).filter(
+#         models.Profile.first_name.contains(query) |
+#         models.Profile.last_name.contains(query) |
+#         models.Profile.short_intro.contains(query) 
+#      ).all()
+    
+#     if all_profiles:
+#         return all_active_profiles(all_profiles)
+#     else:
+#         skill_filter = db.query(models.Skill).filter(
+#         models.Skill.name.contains(query)).all()
+#         for skill in skill_filter:
+#             all_profiles.append(skill.owner)
+#         all_profiles = all_active_profiles(all_profiles)
+#     return all_profiles
 
 # To get the single profile using the id parameter
 def view_single_profile(id:int, db:Session =Depends(database.get_db)):

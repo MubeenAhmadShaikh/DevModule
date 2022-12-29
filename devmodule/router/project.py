@@ -45,8 +45,8 @@ def delete_project(id:int,db:Session = Depends(database.get_db),current_user: sc
 @router.get('',status_code=status.HTTP_200_OK)
 def view_all_projects(query:Union[str, None] =None,page_start: int = 1, page_end: int = 3, db:Session = Depends(database.get_db),current_user: schemas.UserBase= Depends(get_current_user)):    
     if(query):
-        projects = project.search_projects(query,db)
-        return {"projects":projects}
+        projects = project.search_projects(query,page_start, page_end,db)
+        return projects
     else: 
         # projects, profiles = project.view_all_projects(db)
         # return {"projects":projects }
@@ -58,8 +58,8 @@ def view_all_projects(query:Union[str, None] =None,page_start: int = 1, page_end
 @router.get('/projects-explore',status_code=status.HTTP_200_OK)
 def view_all_projects( query:Union[str, None] =None, page_start: int = 1, page_end: int = 3, db:Session = Depends(database.get_db)):    
     if(query):
-        projects = project.search_projects(query,db)
-        return {"projects":projects}
+        projects = project.search_projects(query,page_start, page_end,db)
+        return projects
     else: 
         # projects, profiles = project.view_all_projects(page_start,page_end,db)
         projects = project.view_all_projects(page_start,page_end,db)

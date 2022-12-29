@@ -19,11 +19,11 @@ router = APIRouter(
 @router.get('', status_code=status.HTTP_200_OK)
 def view_all_profiles(query:Union[str, None] =None,page_start:int = 1, page_end:int = 3,db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     if(query):
-        profiles = profile.search_profiles(query,db)
+        profiles = profile.search_profiles(query,page_start,page_end,db)
         skills = []
-        for prf in profiles:
+        for prf in profiles['profiles']:
             skills.append(prf.skill)
-        return {"profiles":profiles}
+        return profiles
     else: 
         profiles = profile.view_all_profiles(page_start,page_end,db)
         skills = []
@@ -35,11 +35,11 @@ def view_all_profiles(query:Union[str, None] =None,page_start:int = 1, page_end:
 @router.get('/developers-explore',status_code=status.HTTP_200_OK)
 def view_all_profiles(query:Union[str, None] =None,page_start:int = 1, page_end:int = 3, db:Session = Depends(database.get_db)):   
     if(query):
-        profiles = profile.search_profiles(query,db)
+        profiles = profile.search_profiles(query,page_start,page_end,db)
         skills = []
-        for prf in profiles:
+        for prf in profiles['profiles']:
             skills.append(prf.skill)
-        return {"profiles":profiles}
+        return profiles
     else: 
         profiles = profile.view_all_profiles(page_start,page_end,db)
         skills = []

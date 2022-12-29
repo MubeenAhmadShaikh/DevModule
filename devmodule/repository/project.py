@@ -13,15 +13,12 @@ from drive import driveDB
 # To get all the projects
 def view_all_projects(page_start:int, page_end:int,db:Session = Depends(database.get_db)):
     projects = db.query(models.Project).order_by(desc(models.Project.created)).all()
-    profiles= [project.owner for project in projects]
-    active_profiles = profile.all_active_profiles(profiles)
     active_projects=all_active_profiles_projects(projects)
     data_length = len(active_projects)
     start = (page_start - 1) * page_end
     end = start + page_end
     response = {
-        "profiles":active_profiles,
-        "data": active_projects[start:end],
+        "projects": active_projects[start:end],
         "total": data_length,
         "count": end,
         "pagination": {}
@@ -133,14 +130,23 @@ def get_project_review(id,db):
     return all_active_profiles_reviews(reviews)
 
 # To search for the projects
-def search_projects(query,db):
+def search_projects(query,page_start, page_end,db):
     all_projects = db.query(models.Project).filter(
     models.Project.title.contains(query) |
     models.Project.description.contains(query) 
     ).all()
-
+    start = (page_start - 1) * page_end
+    end = start + page_end
+    response = {}
     if all_projects:
-        return all_active_profiles_projects(all_projects)
+        active_projects = all_active_profiles_projects(all_projects)
+        data_length = len(active_projects)
+        response = {
+            "projects": active_projects[start:end],
+            "total": data_length,
+            "count": end,
+            "pagination": {}
+        }  
     else:
         projects = db.query(models.Project).all()
         active_projects = all_active_profiles_projects(projects)
@@ -148,7 +154,27 @@ def search_projects(query,db):
         for project in active_projects:
             if (project.owner.first_name.lower() in query.lower()) or (project.owner.last_name.lower() in query.lower()) :
                 all_projects.append(project)
-        return all_projects
+        data_length = len(all_projects)
+        response = {
+            "projects": all_projects[start:end],
+            "total": data_length,
+            "count": end,
+            "pagination": {}
+        }
+    if end >= data_length:
+        response["pagination"]["next"] = None
+        if page_start > 1:
+            response["pagination"]["previous"] = f"?query={query}&page_start={page_start-1}&page_end={page_end}"
+        else:
+            response["pagination"]["previous"] = None
+    else:
+        if page_start > 1:
+            response["pagination"]["previous"] = f"?query={query}&page_start={page_start-1}&page_end={page_end}"
+        else:
+            response["pagination"]["previous"] = None
+        response["pagination"]["next"] = f"?query={query}&page_start={page_start+1}&page_end={page_end}"
+    return response 
+        # return all_projects
             
 # To return only active profiles projects
 def all_active_profiles_projects(all_projects):
