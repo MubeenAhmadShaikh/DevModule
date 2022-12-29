@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from core import models, database, schemas
 from repository import skill
 from repository.oauth2 import get_current_user
-
 router = APIRouter(
     prefix='/skills',
     tags=['Skill']

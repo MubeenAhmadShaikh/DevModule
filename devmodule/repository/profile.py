@@ -119,7 +119,7 @@ def search_profiles(query:str,page_start, page_end, db:Session =Depends(database
 #     return all_profiles
 
 # To get the single profile using the id parameter
-def view_single_profile(id:int, db:Session =Depends(database.get_db)):
+def view_single_profile(id, db):
     user_profile = db.query(models.Profile).filter(models.Profile.id == id).first()
     if not user_profile:
               raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No such profile exist')

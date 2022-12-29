@@ -48,8 +48,6 @@ def view_all_projects(query:Union[str, None] =None,page_start: int = 1, page_end
         projects = project.search_projects(query,page_start, page_end,db)
         return projects
     else: 
-        # projects, profiles = project.view_all_projects(db)
-        # return {"projects":projects }
         projects = project.view_all_projects(page_start,page_end,db)
         return projects
     
@@ -61,9 +59,7 @@ def view_all_projects( query:Union[str, None] =None, page_start: int = 1, page_e
         projects = project.search_projects(query,page_start, page_end,db)
         return projects
     else: 
-        # projects, profiles = project.view_all_projects(page_start,page_end,db)
         projects = project.view_all_projects(page_start,page_end,db)
-        # return {"projects":projects,"profiles":profiles}
         return projects
 
 # Route for viewing single project for authorized user

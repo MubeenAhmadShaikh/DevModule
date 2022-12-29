@@ -39,7 +39,7 @@ def view_all_projects(page_start:int, page_end:int,db:Session = Depends(database
     # return active_projects, active_profiles
 
 # To get single project with id
-def view_single_project(id:int, db:Session = Depends(database.get_db)):
+def view_single_project(id, db):
     single_project = db.query(models.Project).filter(models.Project.id == id).first()
     
     if not single_project:
@@ -79,7 +79,7 @@ def create_project(title,featured_image,description,demo_link,source_link, db:Se
     
 
 # To update a project
-def update_project(id:int,title,featured_image,description,demo_link,source_link, db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+def update_project(id,title,featured_image,description,demo_link,source_link, db:Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
     single_project = db.query(models.Project).filter(models.Project.id == id)
     if not single_project.first():
               raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail='No such project exist')
@@ -112,7 +112,7 @@ def delete_image(id:str):
 
 
 # To Delete single project
-def delete_project(id:int,db:Session = Depends(database.get_db)):
+def delete_project(id,db):
     single_project = db.query(models.Project).filter(models.Project.id == id)
     projectObj = db.query(models.Project).filter(models.Project.id == id).first()
     prev_image_id = re.search('=(.*?)&', projectObj.featured_image).group(1)

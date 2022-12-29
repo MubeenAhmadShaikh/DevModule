@@ -3,32 +3,28 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DATE, Boolean, Enum
 from .database import Base
 from sqlalchemy.orm import relationship, backref
 from datetime import datetime
-import enum
-
 timeFormat =  datetime.now().strftime('%Y-%m-%d %H:%M')
 
 class User(Base):
     __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True, index=True)
+    
+
+    id = Column(Integer, primary_key=True, nullable=False, index=True)
     created = Column(String, default=timeFormat)
     email = Column(String, nullable=False)
     password = Column(String, nullable=False)
-    # profile = relationship("Profile", backref="user")
-    # projects
-    # profile = relationship("Profile", cascade="all, delete-orphan")
-    # reviews
-    # skills
-    # blogs
+
     profile = relationship("Profile", back_populates="user")
-    # project = relationship("Project", back_populates="owner")
 
 
 
 class Profile(Base):
     __tablename__ = 'profiles'
 
-    id  = Column(Integer, primary_key=True,index=True)
+    
+
+    id  = Column(Integer, primary_key=True, nullable=False, index=True)
     created = Column(String,default=timeFormat)
     first_name = Column(String(200), nullable=False)
     last_name = Column(String(200), nullable=False)
@@ -58,8 +54,10 @@ class Profile(Base):
 
 class Project(Base):
     
+    
+
     __tablename__ = 'projects'
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, nullable=False, index=True)
     created = Column(String,default=timeFormat)
     title = Column(String(200),nullable=False)
     featured_image = Column(String(500))
@@ -80,7 +78,9 @@ class Project(Base):
 class Review(Base):
     
     __tablename__ = 'reviews'
-    id = Column(Integer, primary_key=True, index=True)
+    
+
+    id = Column(Integer, primary_key=True, nullable=False, index=True)
     created = Column(String,default=timeFormat)
     comment = Column(String(200),nullable=False)
     vote_value = Column(String,nullable=False)
@@ -95,8 +95,9 @@ class Review(Base):
 
 class Skill(Base):
     __tablename__ = 'skills'
+    
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, nullable=False, index=True)
     created = Column(String, default=timeFormat) 
     name = Column(String(200), nullable=False)
     description = Column(String(1000), nullable=True)
