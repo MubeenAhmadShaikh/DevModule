@@ -31,3 +31,5 @@ app.include_router(project.router)
 app.include_router(review.router)
 
 
+if __name__ == "__main__":
+    uvicorn.run(app, port=5000, host="0.0.0.0")
