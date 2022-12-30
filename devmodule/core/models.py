@@ -22,8 +22,6 @@ class User(Base):
 class Profile(Base):
     __tablename__ = 'profiles'
 
-    
-
     id  = Column(Integer, primary_key=True, nullable=False, index=True)
     created = Column(String,default=timeFormat)
     first_name = Column(String(200), nullable=False)
