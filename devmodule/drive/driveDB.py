@@ -13,7 +13,7 @@ def upload_file(filename, coreFile, page):
             file_metadata = {'name': filename, 'parents': ['1s2TvFOuRYJnejmXPZDQE8vQ38jieqGwa']}
         media = MediaFileUpload(coreFile, mimetype='image/jpg')
         file = serv.files().create(body=file_metadata, media_body=media, fields='id').execute()
-        print(F'File ID: {file.get("id")}')
+        
         change_role_of_files(file.get("id"))
     except HttpError as error:
         print(f'An error occured: {error}')

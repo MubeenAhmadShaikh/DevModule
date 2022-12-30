@@ -57,7 +57,7 @@ def create_project(title,featured_image,description,demo_link,source_link, db:Se
         page = 'project'
         feature_img_id = driveDB.upload_file(featured_image.filename,os.path.realpath(os.curdir)+'/temp/project_images/'+featured_image.filename, page)
         weburl = driveDB.get_file_with_id(feature_img_id).get('webContentLink')
-        print(weburl)
+        
         create_project = models.Project(
             title=title,
             featured_image=weburl,
