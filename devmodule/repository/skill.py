@@ -3,13 +3,13 @@ from sqlalchemy.orm import Session
 from core import models, database, schemas
 
 # To create a skill
-def create_skill(request, db,current_user):
+def create_skill(name,description, db,current_user):
     for skill in current_user.skill:
-        if (skill.name == request.name.lower()):
+        if (skill.name == name.lower()):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Already have this skill in your profile')
     create_skill = models.Skill(
-        name=request.name.lower(),
-        description=request.description,
+        name=name.lower(),
+        description=description,
         owner_id=current_user.id
     )
     db.add(create_skill)
@@ -18,11 +18,13 @@ def create_skill(request, db,current_user):
     return create_skill
 
 # To update a skill
-def update_skill(id, request,db):
+def update_skill(id,name,description,db):
     update_skill = db.query(models.Skill).filter(models.Skill.id == id)
     if not update_skill.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No such skill exist')
-    update_skill.update(request.dict())
+    update_skill.update({
+            'name':name,
+            'description':description})
     db.commit()
     return 'Updated skill'
 

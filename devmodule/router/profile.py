@@ -111,7 +111,7 @@ def update_profile(
     social_linkedin:Union[str, None] = None,
     social_youtube:Union[str, None] = None,
     social_website:Union[str, None] = None,
-    db:Session =Depends(database.get_db),
+    db:Session = Depends(database.get_db),
     current_user: models.User = Depends(get_current_user)):
     return profile.update_profile( first_name, last_name, profile_image, location, short_intro, bio,
     social_github, social_twitter, social_linkedin, social_youtube, social_website,db, current_user)
