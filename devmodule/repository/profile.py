@@ -99,24 +99,7 @@ def search_profiles(query:str,page_start, page_end, db:Session =Depends(database
         response["pagination"]["next"] = f"?query={query}&page_start={page_start+1}&page_end={page_end}"
     return response
         
-# OG
-# Search the users for profiles
-# def search_profiles(query:str, db:Session =Depends(database.get_db)):
-#     all_profiles = db.query(models.Profile).filter(
-#         models.Profile.first_name.contains(query) |
-#         models.Profile.last_name.contains(query) |
-#         models.Profile.short_intro.contains(query) 
-#      ).all()
-    
-#     if all_profiles:
-#         return all_active_profiles(all_profiles)
-#     else:
-#         skill_filter = db.query(models.Skill).filter(
-#         models.Skill.name.contains(query)).all()
-#         for skill in skill_filter:
-#             all_profiles.append(skill.owner)
-#         all_profiles = all_active_profiles(all_profiles)
-#     return all_profiles
+
 
 # To get the single profile using the id parameter
 def view_single_profile(id, db):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from fastapi import FastAPI, Depends, Request, status, APIRouter, UploadFile, File, Form
 from sqlalchemy.orm import Session
-from repository import project
+from repository import project, review
 from repository.oauth2 import get_current_user
 from core import schemas, database, models
 from typing import Union
@@ -43,7 +43,7 @@ def delete_project(id:int,db:Session = Depends(database.get_db),current_user: sc
 
 # Route for viewing all project for authorized user
 @router.get('',status_code=status.HTTP_200_OK)
-def view_all_projects(query:Union[str, None] =None,page_start: int = 1, page_end: int = 3, db:Session = Depends(database.get_db),current_user: schemas.UserBase= Depends(get_current_user)):    
+def view_all_projects(query:Union[str, None] =None,page_start: int = 1, page_end: int = 6, db:Session = Depends(database.get_db),current_user: schemas.UserBase= Depends(get_current_user)):    
     if(query):
         projects = project.search_projects(query,page_start, page_end,db)
         return projects
@@ -54,7 +54,7 @@ def view_all_projects(query:Union[str, None] =None,page_start: int = 1, page_end
 
 # Route for all projects for unauthorized user
 @router.get('/projects-explore',status_code=status.HTTP_200_OK)
-def view_all_projects( query:Union[str, None] =None, page_start: int = 1, page_end: int = 3, db:Session = Depends(database.get_db)):    
+def view_all_projects( query:Union[str, None] =None, page_start: int = 1, page_end: int = 6, db:Session = Depends(database.get_db)):    
     if(query):
         projects = project.search_projects(query,page_start, page_end,db)
         return projects
@@ -84,3 +84,23 @@ def view_single_project(id:int,db:Session = Depends(database.get_db)):
 def get_project_review(id:int,db:Session= Depends(database.get_db), current_user = Depends(get_current_user)):
    return project.get_project_review(id,db)
 
+
+# This API is written only to fill the datasets according to total votes
+# @router.get('/add-votes')
+# def add_votes(db:Session = Depends(database.get_db)):
+#     projects = db.query(models.Project).all()
+#     vote_ratios = []
+#     total_votes = []
+#     for project in projects:
+#         reviews = db.query(models.Review).filter(models.Review.project_id == project.id).all()
+#         projectObj = db.query(models.Project).filter(models.Project.id == project.id)
+#         # vote_update = {
+#         #     'vote_total':len(reviews)
+#         # }
+#         # projectObj.update(vote_update)
+#         # db.commit()
+#         # review.update_vote_count(project.id,db)
+#         vote_ratio = review.get_positive_feedback(project.id,db)
+#         review.update_vote_ratio(project.id,vote_ratio,db)
+#         # vote_ratios.append(review.get_positive_feedback(project.id, db))
+#     return 'success'

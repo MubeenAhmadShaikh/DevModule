@@ -17,7 +17,7 @@ router = APIRouter(
 
 # View all developers route for authenticated user
 @router.get('', status_code=status.HTTP_200_OK)
-def view_all_profiles(query:Union[str, None] =None,page_start:int = 1, page_end:int = 3,db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):
+def view_all_profiles(query:Union[str, None] =None,page_start:int = 1, page_end:int = 6,db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):
     if(query):
         profiles = profile.search_profiles(query,page_start,page_end,db)
         skills = []
@@ -33,7 +33,7 @@ def view_all_profiles(query:Union[str, None] =None,page_start:int = 1, page_end:
 
 # View all developers route for unauthenticated user
 @router.get('/developers-explore',status_code=status.HTTP_200_OK)
-def view_all_profiles(query:Union[str, None] =None,page_start:int = 1, page_end:int = 3, db:Session = Depends(database.get_db)):   
+def view_all_profiles(query:Union[str, None] =None,page_start:int = 1, page_end:int = 6, db:Session = Depends(database.get_db)):   
     if(query):
         profiles = profile.search_profiles(query,page_start,page_end,db)
         skills = []
@@ -46,7 +46,7 @@ def view_all_profiles(query:Union[str, None] =None,page_start:int = 1, page_end:
         for prf in profiles['profiles']:
             skills.append(prf.skill) 
         return profiles
-    
+        
 # Single Profile route for authenticated users
 @router.get('/profile/{id}')
 def view_single_profile(id:int, db:Session =Depends(database.get_db), current_user: schemas.UserBase = Depends(get_current_user)):

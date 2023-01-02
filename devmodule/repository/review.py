@@ -65,11 +65,14 @@ def update_vote_ratio(proj_id,vote_ratio,db):
 def get_positive_feedback(project_id,db):
     project = db.query(models.Project).filter(models.Project.id == project_id).first()
     reviews = db.query(models.Review).filter(models.Review.project_id == project_id).all()
-    up_votes = 0
-    for review in reviews:
-        if review.vote_value == 'up':
-            up_votes += 1
-    total_votes = project.vote_total
-    vote_ratio = (up_votes/total_votes)*100
-    return vote_ratio
+    if len(reviews) != 0:
+        up_votes = 0
+        for review in reviews:
+            if review.vote_value == 'up':
+                up_votes += 1
+        total_votes = project.vote_total
+        vote_ratio = (up_votes/total_votes)*100
+        return vote_ratio
+    else:
+        return 0
 
