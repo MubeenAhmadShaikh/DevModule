@@ -31,19 +31,14 @@ class Profile(Base):
     location = Column(String(200), nullable=True)
     short_intro = Column(String(200), nullable=True)
     bio = Column(String(2000), nullable=True)
-    # profile_image = models.ImageField(
-    #     null=True, blank=True, upload_to='profiles/', default="profiles/user-default.png")
     social_github = Column(String(200), nullable=True)
     social_twitter = Column(String(200), nullable=True)
     social_linkedin = Column(String(200), nullable=True)
     social_youtube = Column(String(200), nullable=True)
     social_website = Column(String(200), nullable=True)
     is_active = Column(Boolean, nullable=False)
-    # is_active = Column(Boolean, nullable=False)
-    # owner_id = Column(Integer, ForeignKey("users.id"))
     user_id = Column(Integer,ForeignKey("users.id"))
     user = relationship("User", back_populates="profile")
-    # owner_id = Column(Integer, ForeignKey("users.id"),nullable=True)
     project = relationship("Project", back_populates="owner")
     skill = relationship("Skill", back_populates="owner")
     review = relationship("Review", back_populates="owner")
@@ -64,13 +59,10 @@ class Project(Base):
     source_link = Column(String(2000), nullable=True)
     vote_total = Column(Integer,default=0)
     vote_ratio = Column(Integer,default=0)
-    # ForeignKeys
     owner_id = Column(Integer,ForeignKey("profiles.id"))
     owner = relationship("Profile", back_populates="project")
     review = relationship("Review", back_populates="project")
-    # Relationships
-    # owner
-    # tags
+   
 
     
 class Review(Base):
@@ -101,5 +93,4 @@ class Skill(Base):
     description = Column(String(1000), nullable=True)
     owner_id = Column(Integer,ForeignKey("profiles.id"))
     owner = relationship("Profile", back_populates="skill")
-    # owner
 

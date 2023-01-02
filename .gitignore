@@ -2,3 +2,4 @@ __pycache__
 fast-env
 .idea
 devmodule-app
+devmodule.db

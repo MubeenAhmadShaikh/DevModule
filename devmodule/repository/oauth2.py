@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
-
+# To validate the token of current user
 def get_current_user(tokendata: str = Depends(oauth2_scheme), db:Session = Depends(database.get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -18,7 +18,7 @@ def get_current_user(tokendata: str = Depends(oauth2_scheme), db:Session = Depen
     return token.verify_token(tokendata, credentials_exception, db)
 
 
-
+# To authenticate user during login
 def authenticate_user(request, db:Session = Depends(database.get_db)):
     
     user = db.query(models.User).filter(models.User.email == request.username )

@@ -1,6 +1,5 @@
-from sqlalchemy.orm import Session
-from fastapi import Depends, HTTPException, status, File, UploadFile
-from core import schemas, database, models
+from fastapi import  HTTPException, status
+from core import models
 from repository import project
 
 
