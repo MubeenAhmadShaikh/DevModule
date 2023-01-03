@@ -59,7 +59,7 @@ Access API locally with url
 ```
 <br>
 
-<img src="temp/API.png"/>
+<img src="devmodule/temp/API.png"/>
 
 <br>
 
@@ -81,7 +81,7 @@ Access API locally with url
 
 
 <hr>
-<img src="temp/logo.png"/>
+<img src="devmodule/temp/logo.png"/>
 <hr>
 
 <br>

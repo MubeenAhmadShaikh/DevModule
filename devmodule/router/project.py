@@ -85,22 +85,8 @@ def get_project_review(id:int,db:Session= Depends(database.get_db), current_user
    return project.get_project_review(id,db)
 
 
-# This API is written only to fill the datasets according to total votes
-# @router.get('/add-votes')
-# def add_votes(db:Session = Depends(database.get_db)):
-#     projects = db.query(models.Project).all()
-#     vote_ratios = []
-#     total_votes = []
-#     for project in projects:
-#         reviews = db.query(models.Review).filter(models.Review.project_id == project.id).all()
-#         projectObj = db.query(models.Project).filter(models.Project.id == project.id)
-#         # vote_update = {
-#         #     'vote_total':len(reviews)
-#         # }
-#         # projectObj.update(vote_update)
-#         # db.commit()
-#         # review.update_vote_count(project.id,db)
-#         vote_ratio = review.get_positive_feedback(project.id,db)
-#         review.update_vote_ratio(project.id,vote_ratio,db)
-#         # vote_ratios.append(review.get_positive_feedback(project.id, db))
-#     return 'success'
+
+
+
+
+        
