@@ -3,9 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from core.database import Base, engine
 from core import models
-from router import project,skill, authentication, profile, review
+from router import project, skill, authentication, profile, review
 from pathlib import Path
 import uvicorn
+
 app = FastAPI()
 
 models.Base.metadata.create_all(engine)
@@ -21,7 +22,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 
 app.include_router(authentication.router)
